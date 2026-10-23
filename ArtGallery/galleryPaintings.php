@@ -20,6 +20,7 @@ catch (PDOException $e) {
   </head>
 <body>
 <main class="ui container">
+   <?php include 'nav.php'; ?>
    <div class="ui secondary segment">
       <h1>User Input</h1>
       <form method="get" action="galleryPaintings.php">

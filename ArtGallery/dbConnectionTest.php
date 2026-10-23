@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html>
 <body>
+   <?php include 'nav.php'; ?>
 <h1>Database Tester (PDO)</h1>
 <?php
 try {

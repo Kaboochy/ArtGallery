@@ -62,6 +62,7 @@ function constructGenreLink($id, $label) {
   </head>
 <body>
 <main class="ui container">
+   <?php include 'nav.php'; ?>
       <div class="ui secondary segment">
          <h1>List of Links</h1>
       </div>
