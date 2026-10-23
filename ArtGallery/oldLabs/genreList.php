@@ -1,6 +1,6 @@
 <?php 
 
-require_once('config.php'); 
+require_once('dbConfig.php'); 
 
 /*
  Displays a list of genres
@@ -45,7 +45,7 @@ function outputSingleGenre($row) {
   be a name or even an image tag
 */
 function constructGenreLink($id, $label) {
-   $link = '<a href="genre.php?id=' . $id . '">';
+   $link = '<a href="genreDetail.php?id=' . $id . '">';
    $link .= $label;
    $link .= '</a>';
    return $link;

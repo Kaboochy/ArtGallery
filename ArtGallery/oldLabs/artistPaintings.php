@@ -1,6 +1,6 @@
 <?php 
 
-require_once('config.php'); 
+require_once('dbConfig.php'); 
 
 /*
  Displays the list of artist links on the left-side of page

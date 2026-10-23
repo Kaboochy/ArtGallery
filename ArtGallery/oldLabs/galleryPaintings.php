@@ -1,6 +1,6 @@
 <?php 
 
-require_once('config.php'); 
+require_once('dbConfig.php'); 
 try {
    $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -22,7 +22,7 @@ catch (PDOException $e) {
 <main class="ui container">
    <div class="ui secondary segment">
       <h1>User Input</h1>
-      <form method="get" action="lab14-exercise09.php">
+      <form method="get" action="galleryPaintings.php">
          Gallery: 
          <select name="gallery">
             <option value="0">Select a gallery</option>
