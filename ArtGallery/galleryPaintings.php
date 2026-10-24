@@ -1,4 +1,6 @@
-<?php 
+<?php
+//this makes sure someone is logged in, if not it sends them to the login page
+require 'checkLogin.php';
 
 require_once('dbConfig.php'); 
 try {
