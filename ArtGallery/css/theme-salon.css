@@ -1,0 +1,501 @@
+/* theme-salon.css is the "classic salon" look
+   an old european museum: parchment walls, burgundy and gold, and a gilded frame on every painting
+   it only changes how semantic ui looks, the pages themselves are the same */
+
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap");
+
+/* the colors used everywhere, change them here to adjust the whole theme */
+:root {
+   --wall:     #f1e7d0;   /* page background */
+   --wall-dim: #e3d3ae;   /* the darker edges of the page */
+   --mat:      #f8f1df;   /* the cream mat between frame and painting */
+   --ink:      #2e2018;   /* main text, a dark brown */
+   --muted:    #6f5a47;   /* captions and labels */
+   --line:     #cdb684;   /* thin gold-ish dividers */
+   --gold:     #a8832f;   /* the gold accent */
+   --burgundy: #6e1f2a;   /* the main accent */
+   --serif:    'EB Garamond', Garamond, Georgia, serif;
+   --caps:     'Cinzel', 'Times New Roman', serif;
+   /* the gilded frame, light and dark bands make it look like carved gold */
+   --gilt: linear-gradient(135deg, #7a5a22 0%, #e2c272 22%, #9a7633 45%, #f0d88e 68%, #8b6a2a 85%, #c9a75a 100%);
+}
+
+/* ---------- page ---------- */
+
+/* the darker edges make the middle of the page look lit */
+body {
+   background: radial-gradient(ellipse at center, var(--wall) 40%, var(--wall-dim) 100%) fixed;
+   background-color: var(--wall);
+   color: var(--ink);
+   font-family: var(--serif);
+   font-size: 17px;
+   line-height: 1.6;
+}
+
+main.ui.container {
+   padding: 1.5rem 0 4rem;
+}
+
+/* semantic ui puts its own font and color on headings so !important is needed here */
+h1, h2, h3, h4, h5,
+.ui.header,
+.ui.cards > .card > .content > .header,
+.ui.card > .content > .header,
+.ui.items > .item > .content > .header {
+   font-family: var(--serif) !important;
+   font-weight: 500 !important;
+   color: var(--ink) !important;
+}
+
+.ui.menu, .ui.form, .ui.table, .ui.label, .ui.message, .ui.list, input, select, p {
+   font-family: var(--serif) !important;
+}
+
+a { color: var(--burgundy); }
+a:hover { color: var(--gold); }
+
+/* ---------- tab bar (nav.php) ---------- */
+
+/* gold double lines above and below, like the trim on an old wall */
+.ui.pointing.menu {
+   background: transparent;
+   border: none;
+   border-top: 3px double var(--gold);
+   border-bottom: 3px double var(--gold);
+   border-radius: 0;
+   box-shadow: none;
+   min-height: 0;
+}
+
+.ui.pointing.menu .item {
+   font-family: var(--caps) !important;
+   color: var(--muted);
+   font-size: 0.8rem;
+   font-weight: 600;
+   letter-spacing: 0.14em;
+   text-transform: uppercase;
+   padding: 0.95rem 1.2rem;
+}
+
+/* removes the little dividers between tabs and the arrow under the active tab */
+.ui.pointing.menu .item:before,
+.ui.pointing.menu .active.item:after {
+   display: none;
+}
+
+.ui.pointing.menu a.item:hover {
+   background: transparent;
+   color: var(--burgundy);
+}
+
+.ui.pointing.menu .active.item,
+.ui.pointing.menu .active.item:hover {
+   background: rgba(110, 31, 42, 0.07);
+   color: var(--burgundy);
+}
+
+/* "logged in as" is just text so it stays quiet */
+.ui.pointing.menu span.item {
+   font-family: var(--serif) !important;
+   font-style: italic;
+   font-weight: 400;
+   text-transform: none;
+   letter-spacing: 0;
+   font-size: 0.95rem;
+}
+
+/* ---------- page heading (the grey box on every page) ---------- */
+
+.ui.secondary.segment {
+   background: transparent;
+   border: none;
+   box-shadow: none;
+   color: var(--ink);
+   text-align: center;
+   padding: 3rem 0 2.25rem;
+   margin: 0;
+}
+
+.ui.secondary.segment h1 {
+   font-family: var(--caps) !important;
+   font-weight: 600 !important;
+   font-size: 2.6rem;
+   letter-spacing: 0.06em;
+   line-height: 1.2;
+   margin-bottom: 0.4rem;
+}
+
+/* a small ornament under each page title */
+.ui.secondary.segment h1:after {
+   content: '\2014\00a0\00a0\2766\00a0\00a0\2014';
+   display: block;
+   font-family: var(--serif);
+   font-size: 1.3rem;
+   letter-spacing: 0;
+   color: var(--gold);
+   margin-top: 0.4rem;
+}
+
+.ui.secondary.segment p {
+   color: var(--muted);
+   font-style: italic;
+}
+
+/* ---------- content area (the white box on every page) ---------- */
+
+.ui.segment {
+   background: transparent;
+   border: none;
+   box-shadow: none;
+   border-radius: 0;
+   color: var(--ink);
+   padding: 0;
+}
+
+/* ---------- painting and genre cards ---------- */
+
+.ui.cards > .card,
+.ui.card {
+   background: transparent;
+   border: none;
+   border-radius: 0;
+   box-shadow: none;
+}
+
+/* semantic ui lifts linked cards with its own shadow, the frame shadow below replaces that */
+.ui.cards > a.card:hover,
+.ui.cards > .card:hover {
+   box-shadow: none;
+   transform: none;
+   background: transparent;
+}
+
+/* the gilded frame: the border is the gold, the padding is the cream mat */
+.ui.cards > .card > .image,
+.ui.card > .image,
+.ui.items > .item > .image {
+   background: var(--mat);
+   padding: 9px;
+   border: 10px solid transparent;
+   border-image: var(--gilt) 1;
+   border-radius: 0 !important;
+   box-shadow: 0 12px 22px -8px rgba(60, 35, 15, 0.5);
+   transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.ui.items > .item > .image {
+   padding: 5px;
+   border-width: 7px;
+}
+
+.ui.cards > .card:hover > .image,
+.ui.card:hover > .image {
+   transform: translateY(-3px);
+   box-shadow: 0 20px 30px -10px rgba(60, 35, 15, 0.6);
+}
+
+/* a thin dark edge where the painting meets the mat */
+.ui.cards > .card > .image > img,
+.ui.card > .image > img,
+.ui.card > .image img,
+.ui.items > .item > .image > img {
+   border-radius: 0 !important;
+   box-shadow: 0 0 0 1px rgba(60, 40, 20, 0.35);
+}
+
+/* the caption under each picture is a small brass plaque */
+.ui.cards > .card > .content,
+.ui.card > .content {
+   text-align: center;
+   background: linear-gradient(#f3e8cb, #e6d6ad);
+   border: 1px solid var(--line) !important;
+   border-top: 1px solid var(--line) !important;
+   margin: 0.9rem 6% 0;
+   padding: 0.55rem 0.6rem 0.6rem;
+   box-shadow: 0 2px 4px -2px rgba(60, 35, 15, 0.35);
+}
+
+.ui.cards > .card > .content > .header,
+.ui.card > .content > .header {
+   font-style: italic;
+   font-size: 1.1rem !important;
+   line-height: 1.25;
+}
+
+.ui.cards > .card > .content > a.header:hover,
+.ui.card > .content > a.header:hover {
+   color: var(--burgundy) !important;
+}
+
+.ui.cards > .card > .content > .meta,
+.ui.card > .content > .meta {
+   font-family: var(--caps);
+   color: var(--muted);
+   font-size: 0.68rem;
+   letter-spacing: 0.12em;
+   text-transform: uppercase;
+   margin-top: 0.2rem;
+}
+
+.ui.cards > .card > .content > .description,
+.ui.card > .content > .description {
+   color: var(--gold);
+   font-size: 0.9rem;
+}
+
+/* the delete button area and the genre / gallery card captions */
+.ui.cards > .card > .extra,
+.ui.card > .extra {
+   border-top: none !important;
+   background: transparent;
+   text-align: center;
+   padding: 0.7rem 6% 0;
+   color: var(--ink) !important;
+   font-style: italic;
+}
+
+.ui.cards > .card > .extra h4,
+.ui.card > .extra h4 {
+   font-size: 1.1rem;
+}
+
+/* more space between cards so the frames dont touch */
+.ui.cards {
+   margin: 0 -1.3em;
+}
+
+.ui.cards > .card {
+   margin: 0 1.3em 2.75em;
+}
+
+.ui.four.cards > .card { width: calc(25% - 2.6em); }
+.ui.six.cards > .card  { width: calc(16.666% - 2.6em); }
+
+@media only screen and (max-width: 991px) {
+   .ui.four.doubling.cards > .card,
+   .ui.six.doubling.cards > .card { width: calc(50% - 2.6em); }
+}
+
+@media only screen and (max-width: 767px) {
+   .ui.cards > .card,
+   .ui.four.doubling.cards > .card,
+   .ui.six.doubling.cards > .card { width: calc(100% - 2.6em); }
+}
+
+/* ---------- artist page list and paintings ---------- */
+
+.ui.link.list .item {
+   color: var(--muted) !important;
+   padding: 0.3rem 0;
+}
+
+.ui.link.list .item:hover,
+.ui.link.list .active.item {
+   color: var(--burgundy) !important;
+   font-style: italic;
+}
+
+.ui.items > .item {
+   padding-bottom: 1.75rem;
+   border-bottom: 1px solid var(--line);
+   margin-bottom: 1.75rem;
+}
+
+.ui.items > .item > .content > .header {
+   font-style: italic;
+}
+
+.ui.items > .item > .content > .description {
+   color: var(--muted);
+   line-height: 1.7;
+}
+
+/* ---------- buttons ---------- */
+
+.ui.button {
+   font-family: var(--caps) !important;
+   border-radius: 0;
+   font-size: 0.75rem;
+   font-weight: 600;
+   letter-spacing: 0.12em;
+   text-transform: uppercase;
+   padding: 0.9em 1.5em;
+   background: transparent;
+   color: var(--ink);
+   box-shadow: inset 0 0 0 1px var(--muted);
+}
+
+.ui.button:hover {
+   background: rgba(110, 31, 42, 0.06);
+   color: var(--burgundy);
+   box-shadow: inset 0 0 0 1px var(--burgundy);
+}
+
+/* burgundy with a thin gold line inside, like a museum banner */
+.ui.primary.button {
+   background: var(--burgundy);
+   color: var(--mat);
+   box-shadow: inset 0 0 0 3px var(--burgundy), inset 0 0 0 4px var(--gold);
+}
+
+.ui.primary.button:hover {
+   background: #842735;
+   color: var(--mat);
+   box-shadow: inset 0 0 0 3px #842735, inset 0 0 0 4px var(--gold);
+}
+
+/* delete stays quiet until you point at it */
+.ui.red.basic.button {
+   box-shadow: inset 0 0 0 1px var(--line) !important;
+   color: var(--muted) !important;
+   background: transparent !important;
+}
+
+.ui.red.basic.button:hover {
+   box-shadow: inset 0 0 0 1px var(--burgundy) !important;
+   color: var(--burgundy) !important;
+}
+
+/* ---------- forms, dropdowns and inputs ---------- */
+
+.ui.form .field > label {
+   font-family: var(--caps) !important;
+   font-size: 0.72rem;
+   font-weight: 600;
+   letter-spacing: 0.12em;
+   text-transform: uppercase;
+   color: var(--muted) !important;
+}
+
+.ui.form input[type="text"],
+.ui.form input[type="password"],
+.ui.form select,
+select {
+   background: var(--mat) !important;
+   border: 1px solid var(--line) !important;
+   border-radius: 0 !important;
+   color: var(--ink) !important;
+   font-size: 1rem;
+   padding: 0.6em 0.9em;
+   box-shadow: none !important;
+}
+
+.ui.form input::placeholder {
+   color: #a08e76 !important;
+   font-style: italic;
+}
+
+.ui.form input:focus,
+.ui.form select:focus,
+select:focus {
+   border-color: var(--burgundy) !important;
+   outline: none;
+}
+
+/* the forms sit in the middle of the page under the centered heading */
+.ui.form {
+   max-width: 560px;
+   margin: 0 auto;
+}
+
+/* the sort and gallery dropdowns sit on one line with their button */
+.ui.secondary.segment form {
+   margin-top: 1rem;
+}
+
+.ui.secondary.segment form select {
+   margin: 0 0.5rem;
+}
+
+/* ---------- messages ---------- */
+
+.ui.message {
+   border-radius: 0;
+   box-shadow: none !important;
+   background: var(--mat) !important;
+   color: var(--ink) !important;
+   border: 1px solid var(--line);
+   border-left: 4px solid var(--gold);
+   margin: 0 0 2rem;
+}
+
+.ui.positive.message { border-left-color: #4f6b3a; }
+.ui.negative.message { border-left-color: var(--burgundy); }
+
+.ui.message .header {
+   color: var(--ink) !important;
+   font-family: var(--caps) !important;
+   font-size: 0.85rem;
+   letter-spacing: 0.08em;
+}
+
+/* ---------- painting detail page ---------- */
+
+.ui.grid > .column > p {
+   font-size: 1.12rem;
+   line-height: 1.8;
+}
+
+/* the first letter of the description is a big burgundy capital, like an old book */
+.ui.grid > .column > p:first-child::first-letter {
+   float: left;
+   font-family: var(--caps);
+   font-size: 3.4em;
+   line-height: 0.85;
+   padding: 0.08em 0.1em 0 0;
+   color: var(--burgundy);
+}
+
+/* the big picture on the detail pages gets a thicker frame */
+/* only the picture right inside a column, so the artist page pictures dont get two frames */
+.ui.grid > .column > img {
+   border-radius: 0;
+   background: var(--mat);
+   padding: 14px;
+   border: 16px solid transparent;
+   border-image: var(--gilt) 1;
+   box-shadow: 0 18px 30px -10px rgba(60, 35, 15, 0.55);
+}
+
+.ui.definition.table {
+   background: transparent;
+   border: none;
+   border-radius: 0;
+   color: var(--ink);
+   margin: 2rem 0;
+}
+
+.ui.definition.table tr td {
+   border-top: 1px dotted var(--line) !important;
+   padding: 0.6rem 0.5rem !important;
+   background: transparent !important;
+   color: var(--ink) !important;
+}
+
+.ui.definition.table tr td:first-child {
+   font-family: var(--caps);
+   color: var(--burgundy) !important;
+   font-size: 0.72rem;
+   letter-spacing: 0.1em;
+   text-transform: uppercase;
+   box-shadow: none !important;
+}
+
+.ui.definition.table tr td:first-child strong {
+   font-weight: 600;
+}
+
+.ui.label {
+   background: var(--mat) !important;
+   border: 1px solid var(--line);
+   border-radius: 0;
+   color: var(--ink) !important;
+   font-style: italic;
+   font-weight: 400;
+   font-size: 0.95rem;
+}
+
+.ui.label:hover {
+   border-color: var(--burgundy);
+   color: var(--burgundy) !important;
+}

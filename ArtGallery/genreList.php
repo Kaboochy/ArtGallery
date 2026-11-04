@@ -60,7 +60,8 @@ function constructGenreLink($id, $label) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chapter 14</title>
-    <link href="semantic/semantic.css" rel="stylesheet"> 
+    <link href="semantic/semantic.css" rel="stylesheet">
+    <link href="css/theme.css" rel="stylesheet">
   </head>
 <body>
 <main class="ui container">

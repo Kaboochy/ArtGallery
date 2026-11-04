@@ -1,0 +1,3 @@
+/* theme.css is loaded by every page right after semantic.css
+   change the file name below to switch the look of the whole site */
+@import url("theme-salon.css");

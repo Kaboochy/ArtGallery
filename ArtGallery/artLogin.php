@@ -10,6 +10,7 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Art Gallery - Log In</title>
    <link href="semantic/semantic.css" rel="stylesheet">
+   <link href="css/theme.css" rel="stylesheet">
 </head>
 <body>
    <main class="ui container">
