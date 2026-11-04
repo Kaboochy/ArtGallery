@@ -61,14 +61,15 @@ catch (PDOException $e) {
             $result = $pdo->query($sql);
             while ($row = $result->fetch()) {
       ?>
-               <div class="card">
+               <?php //the card links to the painting's detail page ?>
+               <a class="card" href="paintingDetail.php?id=<?php echo $row['PaintingID']; ?>">
                   <div class="image">
                      <img src="images/art/works/square-medium/<?php echo $row['ImageFileName']; ?>.jpg"
                         title="<?php echo $row['Title']; ?>"
                         alt="<?php echo $row['Title']; ?>" >
                   </div>
                   <div class="extra"><?php echo $row['Title']; ?></div>
-               </div>  <!-- end class=card-->
+               </a>  <!-- end class=card-->
       <?php
             } // end while
          } // end if (isset
