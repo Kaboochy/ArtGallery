@@ -7,7 +7,6 @@ $page = basename($_SERVER['SCRIPT_NAME']);
   <a class="<?php if ($page == 'artMain.php' || $page == 'paintingDetail.php') echo 'active '; ?>item" href="artMain.php">Artworks</a>
   <a class="<?php if ($page == 'addPainting.php') echo 'active '; ?>item" href="addPainting.php">Add Artwork</a>
   <a class="<?php if ($page == 'artistPaintings.php') echo 'active '; ?>item" href="artistPaintings.php">Artists</a>
-  <a class="<?php if ($page == 'addArtist.php') echo 'active '; ?>item" href="addArtist.php">Add Artist</a>
   <a class="<?php if ($page == 'galleryPaintings.php') echo 'active '; ?>item" href="galleryPaintings.php">Galleries</a>
   <a class="<?php if ($page == 'genreList.php' || $page == 'genreDetail.php') echo 'active '; ?>item" href="genreList.php">Genres</a>
 

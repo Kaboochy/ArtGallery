@@ -47,14 +47,6 @@ Demo dates: Tue 10/27 or Thu 10/29, 1:00 to 4:30 pm, ECSS 3.101. Sign up on the 
   - Follow the slide's security tips: only allow .jpg, check the file isn't empty, limit the name to letters, numbers, `_`, `-` and `.`
 - [x] State at the top of the report that the Part 3 bonus is done
 
-### 4b. Adding artists (type-in artist dropdown)
-- [x] Add Artwork: the Artist box is a dropdown you can type in (`<input list>` + `<datalist>`), not case sensitive
-- [x] Add Artwork: typing a name that isn't in the list adds that artist with the painting (one transaction, so a failed painting adds no artist)
-- [x] New `addArtist.php` page and "Add Artist" tab: first/last name, nationality (type-in dropdown), gender, birth/death years
-- [x] Add Artist: blocks duplicate names, checks years, shows existing artists as you type
-- [x] Artists page: "Find artist" box to type any artist's name and jump to their paintings
-- [x] Shared artist code lives in `artistHelpers.php`
-
 ### 5. Demo painting: Starry Night
 Values for adding it back after deleting:
 
