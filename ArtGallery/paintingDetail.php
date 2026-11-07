@@ -64,6 +64,7 @@ function outputDetail($label, $value) {
    <title>Art Gallery</title>
    <link href="semantic/semantic.css" rel="stylesheet">
    <link href="css/theme.css" rel="stylesheet">
+   <link href="css/effects.css" rel="stylesheet">
 </head>
 <body>
    <main class="ui container">
@@ -163,5 +164,7 @@ function outputDetail($label, $value) {
       <?php } ?>
    </main>
 
+   <script src="js/jquery-3.1.1.min.js"></script>
+   <script src="js/artEffects.js"></script>
 </body>
 </html>

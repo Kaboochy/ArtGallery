@@ -1,0 +1,62 @@
+/* effects.css styles the animation effects in js/artEffects.js
+   the preview and gray styles come from popover.css in lab 10, the colors match theme-salon.css */
+
+/* the floating preview next to the mouse, the mouse events go through it so it cant flicker */
+#preview {
+   position: absolute;
+   z-index: 1000;
+   display: none;
+   width: 320px;
+   padding: 10px 10px 4px;
+   background: var(--mat);
+   border: 10px solid transparent;
+   border-image: var(--gilt) 1;
+   box-shadow: 0 18px 30px -10px rgba(60, 35, 15, 0.55);
+   pointer-events: none;
+}
+
+#preview img {
+   display: block;
+   width: 100%;
+}
+
+#preview p {
+   margin: 6px 0;
+   color: var(--ink);
+   font-style: italic;
+   text-align: center;
+}
+
+.gray {
+   filter: grayscale(100%);
+   -webkit-filter: grayscale(100%);
+}
+
+/* semantic's margins for four cards beat the ones in the theme, which pushed the cards to the left
+   these match the card widths in theme-salon.css so the row is centered */
+.ui.four.doubling.cards {
+   margin-left: -1.3em;
+   margin-right: -1.3em;
+}
+
+.ui.four.doubling.cards > .card {
+   margin-left: 1.3em;
+   margin-right: 1.3em;
+}
+
+/* the button that opens and closes a slide panel */
+.ui.button.slideButton {
+   display: inline-block;
+   margin: 0.5rem 0 0;
+}
+
+/* the sort form has its own space above it so it doesnt need the theme's margin too */
+.ui.secondary.segment .slideButton + form {
+   padding-top: 1rem;
+   margin-top: 0;
+}
+
+/* the theme's margin stays inside the panel so the slide doesnt jump at the end */
+.slidePanel {
+   overflow: hidden;
+}
