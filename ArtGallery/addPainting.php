@@ -8,34 +8,14 @@ require 'checkLogin.php';
 //this has the database name, user and password
 require_once('dbConfig.php');
 
+//shared artist functions (the type-in artist dropdown, finding and adding artists)
+require_once('artistHelpers.php');
+
+//the themed type-in dropdown used for artist, genre and gallery
+require_once('combobox.php');
+
 //the folder where all the painting pictures are kept
 $imageFolder = 'images/art/works/square-medium/';
-
-//shows every artist as a choice in the artist dropdown
-//the one in $selectedId stays picked if the form has to be shown again
-function outputArtistOptions($selectedId) {
-   try {
-      $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = 'select ArtistID, FirstName, LastName from Artists order by LastName, FirstName';
-      $result = $pdo->query($sql);
-      while ($row = $result->fetch()) {
-         //some artists dont have a first name (like Rembrandt)
-         if ($row['FirstName'] != '')
-            $name = $row['LastName'] . ', ' . $row['FirstName'];
-         else
-            $name = $row['LastName'];
-
-         echo '<option value="' . $row['ArtistID'] . '"';
-         if ($row['ArtistID'] == $selectedId) echo ' selected ';
-         echo '>' . htmlspecialchars($name) . '</option>';
-      }
-      $pdo = null;
-   }
-   catch (PDOException $e) {
-      die( $e->getMessage() );
-   }
-}
 
 //checks if another painting already uses this image file name
 //the paintings table only allows each image file name once
@@ -56,44 +36,131 @@ function imageNameTaken($imageName) {
    }
 }
 
-//saves the new painting into the paintings table
-//every other column (cost, price, shape and so on) uses the database default
-function addPainting($title, $artistId, $year, $medium, $imageName) {
+//gets every genre as choices for the genre dropdown
+function genreComboItems() {
    try {
       $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = 'insert into Paintings (ArtistID, ImageFileName, Title, YearOfWork, Medium)
-              values (:artist, :image, :title, :year, :medium)';
-      $statement = $pdo->prepare($sql);
-      $statement->bindValue(':artist', $artistId);
-      $statement->bindValue(':image', $imageName);
-      $statement->bindValue(':title', $title);
-      $statement->bindValue(':year', $year);
-      $statement->bindValue(':medium', $medium);
-      $statement->execute();
+      $result = $pdo->query('select GenreName from Genres order by GenreName');
+      $items = array();
+      while ($row = $result->fetch()) {
+         $items[] = array('value' => $row['GenreName']);
+      }
       $pdo = null;
+      return $items;
    }
    catch (PDOException $e) {
       die( $e->getMessage() );
    }
 }
 
+//gets every gallery as choices for the gallery dropdown, the city shows in small grey text
+function galleryComboItems() {
+   try {
+      $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $result = $pdo->query('select GalleryName, GalleryCity from Galleries order by GalleryName');
+      $items = array();
+      while ($row = $result->fetch()) {
+         $items[] = array('value' => $row['GalleryName'], 'note' => $row['GalleryCity']);
+      }
+      $pdo = null;
+      return $items;
+   }
+   catch (PDOException $e) {
+      die( $e->getMessage() );
+   }
+}
+
+//finds the id of the genre or gallery with this exact name (not case sensitive), 0 if there is none
+//$table and $idColumn and $nameColumn come from this file only, never from what the user typed
+function findIdByName($table, $idColumn, $nameColumn, $name) {
+   try {
+      $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $sql = "select $idColumn as id from $table where lower(trim($nameColumn)) = lower(:name) order by $idColumn limit 1";
+      $statement = $pdo->prepare($sql);
+      $statement->bindValue(':name', $name);
+      $statement->execute();
+      $row = $statement->fetch();
+      $pdo = null;
+      return $row ? (int)$row['id'] : 0;
+   }
+   catch (PDOException $e) {
+      die( $e->getMessage() );
+   }
+}
+
+//saves the new painting into the paintings table
+//every other column (cost, price, shape and so on) uses the database default
+//if $artistId is 0 the typed artist name is new, so the artist is added first
+//$galleryId and $genreId are 0 when they were left blank
+//the genre goes in the PaintingGenres table because a painting can have more than one
+//all the inserts are in one transaction so a failed painting never leaves a stray artist or genre row behind
+function addPainting($title, $artistId, $newArtistName, $year, $medium, $imageName, $galleryId, $genreId) {
+   try {
+      $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $pdo->beginTransaction();
+
+      if ($artistId == 0) {
+         list($firstName, $lastName) = splitArtistName($newArtistName);
+         $artistId = insertArtist($pdo, $firstName, $lastName);
+      }
+
+      $sql = 'insert into Paintings (ArtistID, GalleryID, ImageFileName, Title, YearOfWork, Medium)
+              values (:artist, :gallery, :image, :title, :year, :medium)';
+      $statement = $pdo->prepare($sql);
+      $statement->bindValue(':artist', $artistId);
+      //no gallery picked is saved as null
+      if ($galleryId > 0)
+         $statement->bindValue(':gallery', $galleryId, PDO::PARAM_INT);
+      else
+         $statement->bindValue(':gallery', null, PDO::PARAM_NULL);
+      $statement->bindValue(':image', $imageName);
+      $statement->bindValue(':title', $title);
+      $statement->bindValue(':year', $year);
+      $statement->bindValue(':medium', $medium);
+      $statement->execute();
+
+      if ($genreId > 0) {
+         $paintingId = $pdo->lastInsertId();
+         $statement = $pdo->prepare('insert into PaintingGenres (PaintingID, GenreID) values (:painting, :genre)');
+         $statement->bindValue(':painting', $paintingId, PDO::PARAM_INT);
+         $statement->bindValue(':genre', $genreId, PDO::PARAM_INT);
+         $statement->execute();
+      }
+
+      $pdo->commit();
+      $pdo = null;
+   }
+   catch (PDOException $e) {
+      if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
+      die( $e->getMessage() );
+   }
+}
+
 //these hold what the user typed so the form can show it again if there is a mistake
 $title = '';
-$artistId = '';
+$artistName = '';
 $year = '';
 $medium = '';
 $imageName = '';
+$genreName = '';
+$galleryName = '';
 $errors = array();
 
 //this runs when the ADD button is clicked
 if (isset($_POST['add'])) {
    //trim takes off extra spaces at the start and end
    $title = trim($_POST['title']);
-   $artistId = trim($_POST['artistId']);
+   //squash extra spaces in the typed artist name
+   $artistName = preg_replace('/\s+/', ' ', trim($_POST['artistName']));
    $year = trim($_POST['year']);
    $medium = trim($_POST['medium']);
    $imageName = trim($_POST['imageName']);
+   $genreName = preg_replace('/\s+/', ' ', trim($_POST['genreName']));
+   $galleryName = preg_replace('/\s+/', ' ', trim($_POST['galleryName']));
 
    //checks everything before saving, each problem gets added to $errors
    if ($title == '')
@@ -101,8 +168,19 @@ if (isset($_POST['add'])) {
    else if (strlen($title) > 255)
       $errors[] = 'The title can be at most 255 characters.';
 
-   if ($artistId == '' || !ctype_digit($artistId))
-      $errors[] = 'Please choose an artist.';
+   //the artist can be picked from the dropdown or typed in
+   //a name that is not in the list becomes a new artist when the painting is saved
+   $artistId = 0;
+   if ($artistName == '')
+      $errors[] = 'Please choose or type an artist.';
+   else {
+      $artistId = findArtistIdByName($artistName);
+      if ($artistId == 0) {
+         list($newFirst, $newLast) = splitArtistName($artistName);
+         if (strlen($newFirst) > 50 || strlen($newLast) > 50)
+            $errors[] = 'A new artist\'s first and last name can each be at most 50 characters.';
+      }
+   }
 
    if (!ctype_digit($year) || strlen($year) > 4)
       $errors[] = 'Please enter the year as a number, like 1889.';
@@ -117,13 +195,29 @@ if (isset($_POST['add'])) {
    else if (imageNameTaken($imageName))
       $errors[] = 'Another painting already uses the image ' . $imageName . '.jpg.';
 
+   //genre and gallery can be left blank, but if something is typed it has to be in the list
+   $genreId = 0;
+   if ($genreName != '') {
+      $genreId = findIdByName('Genres', 'GenreID', 'GenreName', $genreName);
+      if ($genreId == 0)
+         $errors[] = 'There is no genre named ' . $genreName . '. Please pick one from the list.';
+   }
+
+   $galleryId = 0;
+   if ($galleryName != '') {
+      $galleryId = findIdByName('Galleries', 'GalleryID', 'GalleryName', $galleryName);
+      if ($galleryId == 0)
+         $errors[] = 'There is no gallery named ' . $galleryName . '. Please pick one from the list.';
+   }
+
    //if medium is left blank use the same default the database uses
    if ($medium == '') $medium = 'Oil on canvas';
 
    //no problems so save it and go back to the main page where it shows up first
    if (count($errors) == 0) {
-      addPainting($title, $artistId, $year, $medium, $imageName);
-      header('Location: artMain.php?added=yes');
+      addPainting($title, $artistId, $artistName, $year, $medium, $imageName, $galleryId, $genreId);
+      //tell the main page if a new artist was made too
+      header('Location: artMain.php?added=yes' . ($artistId == 0 ? '&newArtist=yes' : ''));
       exit;
    }
 }
@@ -137,6 +231,8 @@ if (isset($_POST['add'])) {
    <title>Art Gallery - Add Artwork</title>
    <link href="semantic/semantic.css" rel="stylesheet">
    <link href="css/theme.css" rel="stylesheet">
+   <?php //the ?v= number changes when the file changes, so browsers dont keep an old copy ?>
+   <link href="css/combobox.css?v=<?php echo filemtime("css/combobox.css"); ?>" rel="stylesheet">
 </head>
 <body>
    <main class="ui container">
@@ -169,10 +265,11 @@ if (isset($_POST['add'])) {
             </div>
             <div class="field">
                <label>Artist</label>
-               <select name="artistId">
-                  <option value="">Choose an artist</option>
-                  <?php outputArtistOptions($artistId); ?>
-               </select>
+               <?php //a type-in dropdown, a name that isnt in the list gets an "Add new artist" row ?>
+               <?php outputComboBox('artistName', $artistName, 'Start typing, for example Vincent Van Gogh',
+                                    artistComboItems(), array('newLabel' => 'Add new artist')); ?>
+               <small>Pick an artist from the list, or type a new name to add that artist.
+               For more details (nationality, years) use the <a href="addArtist.php">Add Artist</a> tab first.</small>
             </div>
             <div class="field">
                <label>Year</label>
@@ -183,6 +280,14 @@ if (isset($_POST['add'])) {
                <input type="text" name="medium" placeholder="Oil on canvas" value="<?php echo htmlspecialchars($medium); ?>">
             </div>
             <div class="field">
+               <label>Genre</label>
+               <?php outputComboBox('genreName', $genreName, 'Optional, for example Baroque', genreComboItems()); ?>
+            </div>
+            <div class="field">
+               <label>Gallery</label>
+               <?php outputComboBox('galleryName', $galleryName, 'Optional, for example National Gallery', galleryComboItems()); ?>
+            </div>
+            <div class="field">
                <label>Image file name (without .jpg)</label>
                <input type="text" name="imageName" placeholder="for example 019070" value="<?php echo htmlspecialchars($imageName); ?>">
             </div>
@@ -190,5 +295,6 @@ if (isset($_POST['add'])) {
          </form>
       </div>
    </main>
+   <script src="js/combobox.js?v=<?php echo filemtime("js/combobox.js"); ?>"></script>
 </body>
 </html>

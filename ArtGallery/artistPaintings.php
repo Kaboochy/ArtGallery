@@ -4,6 +4,23 @@ require 'checkLogin.php';
 
 require_once('dbConfig.php'); 
 
+//shared artist functions (the type-in artist dropdown and finding an artist by name)
+require_once('artistHelpers.php');
+
+//the themed type-in dropdown
+require_once('combobox.php');
+
+//the find box sends the typed name, turn it into the artist id and show that artist
+$notFound = '';
+if (isset($_GET['artist']) && trim($_GET['artist']) != '') {
+   $foundId = findArtistIdByName($_GET['artist']);
+   if ($foundId > 0) {
+      header('Location: ' . $_SERVER['SCRIPT_NAME'] . '?id=' . $foundId);
+      exit;
+   }
+   $notFound = trim($_GET['artist']);
+}
+
 
 /*
  Displays the list of artist links on the left-side of page
@@ -84,6 +101,8 @@ function outputSinglePainting($row) {
    <title>Art Gallery - Artists</title>
    <link href="semantic/semantic.css" rel="stylesheet">
    <link href="css/theme.css" rel="stylesheet">
+   <?php //the ?v= number changes when the file changes, so browsers dont keep an old copy ?>
+   <link href="css/combobox.css?v=<?php echo filemtime("css/combobox.css"); ?>" rel="stylesheet">
 </head>
 <body>
    <main class="ui container">
@@ -91,6 +110,31 @@ function outputSinglePainting($row) {
       <div class="ui secondary segment">
          <h1>Artists</h1>
       </div>
+      <?php //green box after a new artist is added on the Add Artist tab ?>
+      <?php if (isset($_GET['added'])) { ?>
+         <div class="ui positive message">The new artist was added. They have no paintings yet, use the Add Artwork tab to add one.</div>
+      <?php } ?>
+
+      <?php if ($notFound != '') { ?>
+         <div class="ui warning message">No artist named <?php echo htmlspecialchars($notFound); ?> was found.
+            You can add them on the <a href="addArtist.php">Add Artist</a> tab.</div>
+      <?php } ?>
+
+      <?php //type an artist's name (or pick it from the dropdown) to jump to their paintings ?>
+      <div class="ui segment">
+         <form class="ui form" method="get" action="<?php echo $_SERVER['SCRIPT_NAME']; ?>">
+            <?php //the box takes up the row and the button sits at its right end ?>
+            <div class="combo-row">
+               <div class="combo-row-box">
+                  <?php //picking a name from the list goes straight to that artist ?>
+                  <?php outputComboBox('artist', '', 'Type an artist\'s name, for example Vincent Van Gogh',
+                                       artistComboItems(), array('submitOnPick' => true)); ?>
+               </div>
+               <input class="ui primary button" type="submit" value="FIND ARTIST">
+            </div>
+         </form>
+      </div>
+
       <div class="ui segment">
          <div class="ui grid">
            <div class="four wide column">
@@ -106,6 +150,7 @@ function outputSinglePainting($row) {
          </div>
       </div>
    </main>
+   <script src="js/combobox.js?v=<?php echo filemtime("js/combobox.js"); ?>"></script>
 
 </body>
 </html>
