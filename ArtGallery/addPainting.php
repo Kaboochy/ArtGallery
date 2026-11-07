@@ -8,34 +8,11 @@ require 'checkLogin.php';
 //this has the database name, user and password
 require_once('dbConfig.php');
 
+//shared artist functions (the type-in artist dropdown, finding and adding artists)
+require_once('artistHelpers.php');
+
 //the folder where all the painting pictures are kept
 $imageFolder = 'images/art/works/square-medium/';
-
-//shows every artist as a choice in the artist dropdown
-//the one in $selectedId stays picked if the form has to be shown again
-function outputArtistOptions($selectedId) {
-   try {
-      $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $sql = 'select ArtistID, FirstName, LastName from Artists order by LastName, FirstName';
-      $result = $pdo->query($sql);
-      while ($row = $result->fetch()) {
-         //some artists dont have a first name (like Rembrandt)
-         if ($row['FirstName'] != '')
-            $name = $row['LastName'] . ', ' . $row['FirstName'];
-         else
-            $name = $row['LastName'];
-
-         echo '<option value="' . $row['ArtistID'] . '"';
-         if ($row['ArtistID'] == $selectedId) echo ' selected ';
-         echo '>' . htmlspecialchars($name) . '</option>';
-      }
-      $pdo = null;
-   }
-   catch (PDOException $e) {
-      die( $e->getMessage() );
-   }
-}
 
 //checks if another painting already uses this image file name
 //the paintings table only allows each image file name once
@@ -58,10 +35,19 @@ function imageNameTaken($imageName) {
 
 //saves the new painting into the paintings table
 //every other column (cost, price, shape and so on) uses the database default
-function addPainting($title, $artistId, $year, $medium, $imageName) {
+//if $artistId is 0 the typed artist name is new, so the artist is added first
+//both inserts are in one transaction so a failed painting never leaves a stray artist behind
+function addPainting($title, $artistId, $newArtistName, $year, $medium, $imageName) {
    try {
       $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $pdo->beginTransaction();
+
+      if ($artistId == 0) {
+         list($firstName, $lastName) = splitArtistName($newArtistName);
+         $artistId = insertArtist($pdo, $firstName, $lastName);
+      }
+
       $sql = 'insert into Paintings (ArtistID, ImageFileName, Title, YearOfWork, Medium)
               values (:artist, :image, :title, :year, :medium)';
       $statement = $pdo->prepare($sql);
@@ -71,16 +57,19 @@ function addPainting($title, $artistId, $year, $medium, $imageName) {
       $statement->bindValue(':year', $year);
       $statement->bindValue(':medium', $medium);
       $statement->execute();
+
+      $pdo->commit();
       $pdo = null;
    }
    catch (PDOException $e) {
+      if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
       die( $e->getMessage() );
    }
 }
 
 //these hold what the user typed so the form can show it again if there is a mistake
 $title = '';
-$artistId = '';
+$artistName = '';
 $year = '';
 $medium = '';
 $imageName = '';
@@ -90,7 +79,8 @@ $errors = array();
 if (isset($_POST['add'])) {
    //trim takes off extra spaces at the start and end
    $title = trim($_POST['title']);
-   $artistId = trim($_POST['artistId']);
+   //squash extra spaces in the typed artist name
+   $artistName = preg_replace('/\s+/', ' ', trim($_POST['artistName']));
    $year = trim($_POST['year']);
    $medium = trim($_POST['medium']);
    $imageName = trim($_POST['imageName']);
@@ -101,8 +91,19 @@ if (isset($_POST['add'])) {
    else if (strlen($title) > 255)
       $errors[] = 'The title can be at most 255 characters.';
 
-   if ($artistId == '' || !ctype_digit($artistId))
-      $errors[] = 'Please choose an artist.';
+   //the artist can be picked from the dropdown or typed in
+   //a name that is not in the list becomes a new artist when the painting is saved
+   $artistId = 0;
+   if ($artistName == '')
+      $errors[] = 'Please choose or type an artist.';
+   else {
+      $artistId = findArtistIdByName($artistName);
+      if ($artistId == 0) {
+         list($newFirst, $newLast) = splitArtistName($artistName);
+         if (strlen($newFirst) > 50 || strlen($newLast) > 50)
+            $errors[] = 'A new artist\'s first and last name can each be at most 50 characters.';
+      }
+   }
 
    if (!ctype_digit($year) || strlen($year) > 4)
       $errors[] = 'Please enter the year as a number, like 1889.';
@@ -122,8 +123,9 @@ if (isset($_POST['add'])) {
 
    //no problems so save it and go back to the main page where it shows up first
    if (count($errors) == 0) {
-      addPainting($title, $artistId, $year, $medium, $imageName);
-      header('Location: artMain.php?added=yes');
+      addPainting($title, $artistId, $artistName, $year, $medium, $imageName);
+      //tell the main page if a new artist was made too
+      header('Location: artMain.php?added=yes' . ($artistId == 0 ? '&newArtist=yes' : ''));
       exit;
    }
 }
@@ -169,10 +171,13 @@ if (isset($_POST['add'])) {
             </div>
             <div class="field">
                <label>Artist</label>
-               <select name="artistId">
-                  <option value="">Choose an artist</option>
-                  <?php outputArtistOptions($artistId); ?>
-               </select>
+               <?php //list="artistList" turns this box into a dropdown you can type in ?>
+               <input type="text" name="artistName" list="artistList" autocomplete="off"
+                      placeholder="Start typing, for example Vincent Van Gogh"
+                      value="<?php echo htmlspecialchars($artistName); ?>">
+               <?php outputArtistDatalist('artistList'); ?>
+               <small>Pick an artist from the list, or type a new name to add that artist.
+               For more details (nationality, years) use the <a href="addArtist.php">Add Artist</a> tab first.</small>
             </div>
             <div class="field">
                <label>Year</label>
