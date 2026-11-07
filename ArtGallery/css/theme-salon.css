@@ -183,6 +183,12 @@ a:hover { color: var(--gold); }
    transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
+/* semantic removes the top border of a card's first child, this puts the gold top back */
+.ui.cards > .card > .image:first-child,
+.ui.card > .image:first-child {
+   border-top: 10px solid transparent !important;
+}
+
 .ui.items > .item > .image {
    padding: 5px;
    border-width: 7px;
@@ -252,6 +258,38 @@ a:hover { color: var(--gold); }
    padding: 0.7rem 6% 0;
    color: var(--ink) !important;
    font-style: italic;
+}
+
+/* the delete area is also a .content so it gets the plaque border, this closes its top edge */
+/* no padding so the delete button fills the whole box */
+/* square corners (semantic rounds the last thing in a card) and pulled up 1px so it shares the plaque's bottom line */
+.ui.cards > .card > .extra.content,
+.ui.card > .extra.content {
+   border-top: 1px solid var(--line) !important;
+   border-radius: 0 !important;
+   padding: 0;
+   margin-top: -1px;
+}
+
+/* the box is the only border around delete, the button itself has none and is bigger */
+.ui.cards > .card > .extra.content .ui.red.basic.button,
+.ui.card > .extra.content .ui.red.basic.button {
+   box-shadow: none !important;
+   border-radius: 0 !important;
+   font-size: 0.95rem;
+   padding: 1.1em 1.5em;
+}
+
+/* pointing at delete turns the box burgundy */
+.ui.cards > .card > .extra.content:hover,
+.ui.card > .extra.content:hover {
+   border-color: var(--burgundy) !important;
+}
+
+.ui.cards > .card > .extra.content .ui.red.basic.button:hover,
+.ui.card > .extra.content .ui.red.basic.button:hover {
+   box-shadow: none !important;
+   background: rgba(110, 31, 42, 0.06) !important;
 }
 
 .ui.cards > .card > .extra h4,
