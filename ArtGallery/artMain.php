@@ -118,13 +118,16 @@ function outputSinglePainting($row, $sort) {
    else
       $artist = $row['LastName'];
 
+   //the picture and title link to the painting's detail page
+   $link = 'paintingDetail.php?id=' . $row['PaintingID'];
+
    echo '<div class="card">';
-   echo '<div class="image">';
+   echo '<a class="image" href="' . $link . '">';
    echo '<img src="images/art/works/square-medium/' . $row['ImageFileName'] . '.jpg"';
    echo ' alt="' . htmlspecialchars($row['Title']) . '">';
-   echo '</div>';
+   echo '</a>';
    echo '<div class="content">';
-   echo '<div class="header">' . htmlspecialchars($row['Title']) . '</div>';
+   echo '<a class="header" href="' . $link . '">' . htmlspecialchars($row['Title']) . '</a>';
    echo '<div class="meta">' . htmlspecialchars($artist) . '</div>';
    echo '<div class="description">' . $row['YearOfWork'] . '</div>';
    echo '</div>';  // end class=content
@@ -166,6 +169,7 @@ if (isset($_GET['sort'])) $sort = cleanSortChoice($_GET['sort']);
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Art Gallery</title>
    <link href="semantic/semantic.css" rel="stylesheet">
+   <link href="css/theme.css" rel="stylesheet">
 </head>
 <body>
    <main class="ui container">

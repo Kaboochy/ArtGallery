@@ -18,7 +18,8 @@ catch (PDOException $e) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chapter 14</title>
-    <link href="semantic/semantic.css" rel="stylesheet"> 
+    <link href="semantic/semantic.css" rel="stylesheet">
+    <link href="css/theme.css" rel="stylesheet">
   </head>
 <body>
 <main class="ui container">
@@ -61,14 +62,15 @@ catch (PDOException $e) {
             $result = $pdo->query($sql);
             while ($row = $result->fetch()) {
       ?>
-               <div class="card">
+               <?php //the card links to the painting's detail page ?>
+               <a class="card" href="paintingDetail.php?id=<?php echo $row['PaintingID']; ?>">
                   <div class="image">
                      <img src="images/art/works/square-medium/<?php echo $row['ImageFileName']; ?>.jpg"
                         title="<?php echo $row['Title']; ?>"
                         alt="<?php echo $row['Title']; ?>" >
                   </div>
                   <div class="extra"><?php echo $row['Title']; ?></div>
-               </div>  <!-- end class=card-->
+               </a>  <!-- end class=card-->
       <?php
             } // end while
          } // end if (isset
