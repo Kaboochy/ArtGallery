@@ -95,7 +95,7 @@ function outputSinglePainting($row) {
 <head>
    <meta charset="utf-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Chapter 14</title>
+   <title>Art Gallery - Artists</title>
    <link href="semantic/semantic.css" rel="stylesheet">
    <link href="css/theme.css" rel="stylesheet">
 </head>
@@ -103,7 +103,7 @@ function outputSinglePainting($row) {
    <main class="ui container">
       <?php include 'nav.php'; ?>
       <div class="ui secondary segment">
-         <h1>User Input</h1>
+         <h1>Artists</h1>
       </div>
       <?php //green box after a new artist is added on the Add Artist tab ?>
       <?php if (isset($_GET['added'])) { ?>

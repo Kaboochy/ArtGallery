@@ -32,7 +32,7 @@ catch (PDOException $e) {
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chapter 14</title>
+    <title>Art Gallery - Genre Details</title>
     <link href="semantic/semantic.css" rel="stylesheet">
     <link href="css/theme.css" rel="stylesheet">
   </head>

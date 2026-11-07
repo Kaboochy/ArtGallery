@@ -17,7 +17,7 @@ catch (PDOException $e) {
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chapter 14</title>
+    <title>Art Gallery - Galleries</title>
     <link href="semantic/semantic.css" rel="stylesheet">
     <link href="css/theme.css" rel="stylesheet">
   </head>
@@ -25,7 +25,7 @@ catch (PDOException $e) {
 <main class="ui container">
    <?php include 'nav.php'; ?>
    <div class="ui secondary segment">
-      <h1>User Input</h1>
+      <h1>Galleries</h1>
       <form method="get" action="galleryPaintings.php">
          Gallery: 
          <select name="gallery">
