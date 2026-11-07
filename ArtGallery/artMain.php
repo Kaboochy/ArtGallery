@@ -194,7 +194,7 @@ if (isset($_GET['sort'])) $sort = cleanSortChoice($_GET['sort']);
          <div class="ui positive message">The painting and everything related to it were deleted.</div>
       <?php } ?>
       <?php if (isset($_GET['added'])) { ?>
-         <div class="ui positive message">The new painting was added. It is the first card below.</div>
+         <div class="ui positive message">The new painting was added. It is the first card below.<?php if (isset($_GET['newArtist'])) echo ' Its artist was new, so the artist was added too.'; ?></div>
       <?php } ?>
 
       <?php //all the painting cards ?>
