@@ -1,6 +1,6 @@
 <?php
-//this makes sure someone is logged in, if not it sends them to the login page
-require 'checkLogin.php';
+//anyone can look at the galleries (task 10)
+require_once 'auth.php';
 
 require_once('dbConfig.php'); 
 try {
@@ -40,8 +40,8 @@ catch (PDOException $e) {
                if (isset($_GET['gallery']) && $row['GalleryID'] == $_GET['gallery']) 
                   echo ' selected ';
                echo '>';
-               echo $row['GalleryName'];
-               echo ' (' . $row['GalleryCity'] . ')';
+               echo htmlspecialchars($row['GalleryName']);
+               echo ' (' . htmlspecialchars($row['GalleryCity']) . ')';
                echo '</option>';
              }
    
@@ -52,24 +52,26 @@ catch (PDOException $e) {
    </div>
 
 <div class="ui segment">
-   <div class="ui six cards">
+   <?php //doubling makes the cards bigger on tablets and phones (task 5) ?>
+   <div class="ui six doubling cards">
       <?php
       // only display painting cards if one has been selected
       if ($_SERVER["REQUEST_METHOD"] == "GET") {
-         if (isset($_GET['gallery']) && $_GET['gallery'] > 0) {
-            $sql = 'select * from Paintings where GalleryId=' .
-                     $_GET['gallery'];
-            $result = $pdo->query($sql);
+         if (isset($_GET['gallery']) && (int)$_GET['gallery'] > 0) {
+            //a prepared statement so nothing typed in the address bar can get into the sql
+            $result = $pdo->prepare('select * from Paintings where GalleryId=:gallery');
+            $result->bindValue(':gallery', (int)$_GET['gallery'], PDO::PARAM_INT);
+            $result->execute();
             while ($row = $result->fetch()) {
       ?>
                <?php //the card links to the painting's detail page ?>
                <a class="card" href="paintingDetail.php?id=<?php echo $row['PaintingID']; ?>">
                   <div class="image">
-                     <img src="images/art/works/square-medium/<?php echo $row['ImageFileName']; ?>.jpg"
-                        title="<?php echo $row['Title']; ?>"
-                        alt="<?php echo $row['Title']; ?>" >
+                     <img src="images/art/works/square-medium/<?php echo htmlspecialchars($row['ImageFileName']); ?>.jpg"
+                        title="<?php echo htmlspecialchars($row['Title']); ?>"
+                        alt="<?php echo htmlspecialchars($row['Title']); ?>" >
                   </div>
-                  <div class="extra"><?php echo $row['Title']; ?></div>
+                  <div class="extra"><?php echo htmlspecialchars($row['Title']); ?></div>
                </a>  <!-- end class=card-->
       <?php
             } // end while

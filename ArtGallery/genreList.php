@@ -1,6 +1,6 @@
 <?php
-//this makes sure someone is logged in, if not it sends them to the login page
-require 'checkLogin.php';
+//anyone can look at the genres (task 10)
+require_once 'auth.php';
 
 require_once('dbConfig.php'); 
 
@@ -31,12 +31,12 @@ function outputGenres() {
 function outputSingleGenre($row) {
    echo '<div class="ui fluid card">';
    echo '<div class="ui fluid image">';
-   $img = '<img src="images/art/genres/square-medium/' . $row['GenreId'] .'.jpg">';
+   $img = '<img src="images/art/genres/square-medium/' . $row['GenreId'] .'.jpg" alt="' . htmlspecialchars($row['GenreName']) . '">';
    echo constructGenreLink($row['GenreId'], $img);
    echo '</div>';
    echo '<div class="extra">';
    echo '<h4>';
-   echo constructGenreLink($row['GenreId'], $row['GenreName']);
+   echo constructGenreLink($row['GenreId'], htmlspecialchars($row['GenreName']));
    echo '</h4>';
    echo '</div>';  // end class=extra
    echo '</div>';  // end class=card

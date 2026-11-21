@@ -1,0 +1,160 @@
+/* combobox.css styles the type-in dropdowns from combobox.php
+   the list is exactly as wide as its text box and uses the same font and size
+   the colors come from the theme (theme-salon.css), the values after the comma are used if a theme leaves one out */
+
+.combo {
+   position: relative;
+   width: 100%;
+}
+
+/* room on the right for the arrow */
+.ui.form .combo input[type="text"],
+.combo input[type="text"] {
+   width: 100%;
+   padding-right: 2.6em !important;
+}
+
+/* when the list is open the box and list look like one piece */
+.ui.form .combo.open input[type="text"] {
+   border-color: var(--burgundy, #6e1f2a) !important;
+}
+
+/* the small arrow inside the right edge of the box */
+.combo-toggle {
+   position: absolute;
+   top: 0;
+   right: 0;
+   bottom: 0;
+   width: 2.4em;
+   border: none;
+   background: transparent;
+   cursor: pointer;
+   padding: 0;
+}
+
+.combo-toggle:after {
+   content: '';
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   width: 0.5em;
+   height: 0.5em;
+   margin: -0.4em 0 0 -0.25em;
+   border-right: 1.5px solid var(--muted, #6f5a47);
+   border-bottom: 1.5px solid var(--muted, #6f5a47);
+   transform: rotate(45deg);
+   transition: transform 0.15s, margin 0.15s;
+}
+
+.combo.open .combo-toggle:after {
+   transform: rotate(-135deg);
+   margin-top: -0.1em;
+   border-color: var(--burgundy, #6e1f2a);
+}
+
+/* the list itself, same width, font and size as the box above it */
+.combo-list {
+   position: absolute;
+   top: 100%;
+   left: 0;
+   right: 0;
+   z-index: 50;
+   margin: 0;
+   padding: 0.25em 0;
+   list-style: none;
+   max-height: 19em;
+   overflow-y: auto;
+   background: var(--mat, #f8f1df);
+   border: 1px solid var(--burgundy, #6e1f2a);
+   border-top: 1px solid var(--line, #cdb684);
+   box-shadow: 0 14px 26px -10px rgba(60, 35, 15, 0.45);
+   font-family: var(--serif, Georgia, serif);
+   font-size: 1rem;
+   line-height: 1.4;
+   color: var(--ink, #2e2018);
+   text-align: left;
+}
+
+.combo-list[hidden] { display: none; }
+
+/* each choice lines up with the text inside the box (same left padding) */
+.combo-list li {
+   display: flex;
+   justify-content: space-between;
+   align-items: baseline;
+   gap: 1em;
+   padding: 0.5em 0.9em;
+   border-left: 3px solid transparent;
+   cursor: pointer;
+}
+
+.combo-list li[hidden] { display: none; }
+
+.combo-list li.active {
+   background: rgba(110, 31, 42, 0.08);
+   border-left-color: var(--gold, #a8832f);
+   color: var(--burgundy, #6e1f2a);
+}
+
+/* the part of the name that matches what was typed */
+.combo-list mark {
+   background: transparent;
+   color: var(--burgundy, #6e1f2a);
+   font-weight: 600;
+}
+
+/* small grey text on the right, like a gallery's city */
+.combo-note {
+   flex-shrink: 0;
+   color: var(--muted, #6f5a47);
+   font-style: italic;
+   font-size: 0.88em;
+}
+
+/* the "Add new artist" row at the bottom */
+.combo-list li.combo-new {
+   border-top: 1px dotted var(--line, #cdb684);
+   margin-top: 0.25em;
+   font-style: italic;
+   color: var(--burgundy, #6e1f2a);
+}
+
+.combo-list li.combo-new:before {
+   content: '+';
+   font-style: normal;
+   font-weight: 600;
+   margin-right: 0.5em;
+}
+
+.combo-list li.combo-new { justify-content: flex-start; gap: 0; }
+
+.combo-list li.combo-empty {
+   color: var(--muted, #6f5a47);
+   font-style: italic;
+   cursor: default;
+}
+
+/* the hint under a box */
+.ui.form .field small {
+   display: block;
+   margin-top: 0.4em;
+   color: var(--muted, #6f5a47);
+   font-style: italic;
+}
+
+/* a dropdown with a button on the same line (the find box on the Artists page) */
+.combo-row {
+   display: flex;
+   gap: 0.75rem;
+   align-items: stretch;
+}
+
+.combo-row-box {
+   flex: 1;
+   min-width: 0;
+}
+
+.combo-row > .ui.button {
+   flex-shrink: 0;
+   margin: 0;
+}

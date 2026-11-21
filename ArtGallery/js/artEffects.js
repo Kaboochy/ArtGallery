@@ -33,9 +33,10 @@ function addSlidePanel(panel, openLabel, closeLabel, startOpen) {
 }
 
 //artworks page: the sort form stays closed unless a sort other than the default is being used
-var sortForm = $('.ui.secondary.segment form');
+//artMain.php sets data-start-open to yes when the sort or the direction was changed
+var sortForm = $('#sortForm');
 if (sortForm.length) {
-   addSlidePanel(sortForm, 'Sort options', 'Hide sort options', sortForm.find('select').val() != 'newest');
+   addSlidePanel(sortForm, 'Sort options', 'Hide sort options', sortForm.attr('data-start-open') == 'yes');
 }
 
 //painting detail page: tables dont slide smoothly so the details table gets a div around it

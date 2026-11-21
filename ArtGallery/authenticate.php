@@ -1,5 +1,5 @@
 <?php
-//authenticate.php checks the user id and password from the login form (part 4)
+//authenticate.php checks the user id and password from the login form (part 4, task 10)
 //i used authenticate2.php from the www13 sample and changed it to use a form instead of the popup
 
 //this has the database name, user and password
@@ -22,7 +22,7 @@ if (isset($_POST['userId']) &&
 {
   //looks up the user in the users table
   $stmt = $pdo->prepare('SELECT * FROM Users WHERE username=:un');
-  $stmt->execute([':un' => $_POST['userId']]);
+  $stmt->execute([':un' => trim($_POST['userId'])]);
 
   //no user with that id so go back to the login page with an error
   if (!$stmt->rowCount())
@@ -37,6 +37,8 @@ if (isset($_POST['userId']) &&
   $sn  = $row['surname'];
   $un  = $row['username'];
   $pw  = $row['password'];
+  //a table made before task 10 has no role column, those accounts count as normal users
+  $role = isset($row['role']) ? $row['role'] : 'user';
 
   //password_verify checks the typed password against the hashed one in the table
   if (password_verify($_POST['password'], $pw))
@@ -49,9 +51,13 @@ if (isset($_POST['userId']) &&
     $_SESSION['forename'] = $fn;
     $_SESSION['surname']  = $sn;
     $_SESSION['username'] = $un;
+    $_SESSION['role']     = $role;
 
-    //logged in so go to the main page
-    header('Location: artMain.php');
+    //admins go to the admin main page, everyone else goes to the gallery
+    if ($role == 'admin')
+      header('Location: admin.php');
+    else
+      header('Location: artMain.php');
     exit;
   }
   else

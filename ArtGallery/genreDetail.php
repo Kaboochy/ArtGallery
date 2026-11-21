@@ -1,6 +1,6 @@
 <?php
-//this makes sure someone is logged in, if not it sends them to the login page
-require 'checkLogin.php';
+//anyone can look at a genre (task 10)
+require_once 'auth.php';
 
 require_once('dbConfig.php'); 
 
@@ -13,9 +13,10 @@ try {
    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             
    $sql = 'select GenreId, GenreName, Description, Link from Genres where GenreId=:id';
-   $id =  $_GET['id'];
+   //(int) turns anything that isnt a number into 0, then no genre is found
+   $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
    $statement = $pdo->prepare($sql);
-   $statement->bindValue(':id', $id);
+   $statement->bindValue(':id', $id, PDO::PARAM_INT);
    $statement->execute();   
    
    $row = $statement->fetch(PDO::FETCH_ASSOC);
@@ -39,25 +40,32 @@ catch (PDOException $e) {
 <body>
 <main class="ui container">
   <?php include 'nav.php'; ?>
+  <?php if (!$row) { ?>
+    <div class="ui secondary segment"><h1>Genres</h1></div>
+    <div class="ui negative message">That genre could not be found.</div>
+    <a class="ui button" href="genreList.php">Back to Genres</a>
+  <?php } else { ?>
     <div class="ui secondary segment">
-         <h1><?php echo $row['GenreName']; ?></h1>
+         <h1><?php echo htmlspecialchars($row['GenreName']); ?></h1>
     </div>    
     <div class="ui segment">
-        <div class="ui grid">
+        <?php //stackable puts the picture above the text on a phone (task 5) ?>
+        <div class="ui stackable grid">
            <div class="three wide column">
-                <img src="images/art/genres/square-medium/<?php echo $row['GenreId']; ?>.jpg" >
+                <img src="images/art/genres/square-medium/<?php echo $row['GenreId']; ?>.jpg" alt="<?php echo htmlspecialchars($row['GenreName']); ?>">
            </div>
            <div class="thirteen wide column">
                 <p><?php echo $row['Description']; ?></p>
                 <p>
-                <a class="ui labeled icon primary button" href="<?php echo $row['Link']; ?>">
+                <a class="ui labeled icon primary button" href="<?php echo htmlspecialchars($row['Link']); ?>">
                   <i class="external icon"></i>
-                  Read more on Wikipedia about <?php echo $row['GenreName']; ?>
+                  Read more on Wikipedia about <?php echo htmlspecialchars($row['GenreName']); ?>
                 </a>
                 </p>
            </div> 
        </div>
     </div>
+  <?php } ?>
 </main>
 
 

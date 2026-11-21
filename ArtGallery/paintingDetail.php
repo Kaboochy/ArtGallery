@@ -2,11 +2,14 @@
 //paintingDetail.php shows everything about one painting
 //the other pages link here with paintingDetail.php?id= and the painting id
 
-//this makes sure someone is logged in, if not it sends them to the login page
-require 'checkLogin.php';
+//anyone can look at a painting, admins also get an Edit button (task 10)
+require_once 'auth.php';
 
 //this has the database name, user and password
 require_once('dbConfig.php');
+
+//cleanDescription keeps only simple tags like <em> in the description
+require_once('paintingHelpers.php');
 
 //(int) turns anything that isnt a number into 0 so it cant break the sql
 $id = 0;
@@ -71,6 +74,11 @@ function outputDetail($label, $value) {
       <?php //the tab bar at the top ?>
       <?php include 'nav.php'; ?>
 
+      <?php //green message after the edit page saved the changes (task 1) ?>
+      <?php if ($row && isset($_GET['updated'])) { ?>
+         <div class="ui positive message">The changes to this painting were saved.</div>
+      <?php } ?>
+
       <?php if (!$row) { ?>
          <?php //the id was missing or no painting has that id (it may have been deleted) ?>
          <div class="ui negative message">That painting could not be found.</div>
@@ -108,15 +116,16 @@ function outputDetail($label, $value) {
             <div class="ui stackable grid">
                <?php //the picture on the left ?>
                <div class="six wide column">
-                  <img class="ui fluid image" src="images/art/works/square-medium/<?php echo $row['ImageFileName']; ?>.jpg"
+                  <?php //the ?v= number changes when a new picture is uploaded so the browser shows the new one ?>
+                  <img class="ui fluid image" src="images/art/works/square-medium/<?php echo htmlspecialchars($row['ImageFileName']); ?>.jpg?v=<?php echo @filemtime('images/art/works/square-medium/' . $row['ImageFileName'] . '.jpg'); ?>"
                      alt="<?php echo htmlspecialchars($row['Title']); ?>">
                </div>
 
                <?php //the description and details on the right ?>
                <div class="ten wide column">
-                  <?php //the description already has html in it like <em> so it is not escaped ?>
+                  <?php //the description has a little html in it like <em>, cleanDescription keeps only those safe tags ?>
                   <?php if ($row['Description'] != '') { ?>
-                     <p><?php echo $row['Description']; ?></p>
+                     <p><?php echo cleanDescription($row['Description']); ?></p>
                   <?php } else { ?>
                      <p><em>No description yet.</em></p>
                   <?php } ?>
@@ -161,6 +170,10 @@ function outputDetail($label, $value) {
          </div>
 
          <a class="ui button" href="artMain.php">Back to Artworks</a>
+         <?php //admins can change this painting (task 1) ?>
+         <?php if (isAdmin()) { ?>
+            <a class="ui primary button" href="editPainting.php?id=<?php echo $row['PaintingID']; ?>">Edit this painting</a>
+         <?php } ?>
       <?php } ?>
    </main>
 
