@@ -1,14 +1,12 @@
 <?php
-//paintingDetail.php shows everything about one painting
-//the other pages link here with paintingDetail.php?id= and the painting id
+//anyone can view, admins also get an edit button
+require_once 'auth.php';
 
-//this makes sure someone is logged in, if not it sends them to the login page
-require 'checkLogin.php';
-
-//this has the database name, user and password
 require_once('dbConfig.php');
 
-//(int) turns anything that isnt a number into 0 so it cant break the sql
+require_once('paintingHelpers.php');
+
+//(int) turns anything that isnt a number into 0
 $id = 0;
 if (isset($_GET['id'])) $id = (int)$_GET['id'];
 
@@ -19,7 +17,7 @@ try {
    $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-   //the joins get the artist and gallery info for the painting
+   //the joins add the artist and gallery info
    $sql = 'select Paintings.*, Artists.FirstName, Artists.LastName, Artists.Nationality,
                   Galleries.GalleryName, Galleries.GalleryCity, Galleries.GalleryCountry
            from Paintings
@@ -31,7 +29,7 @@ try {
    $statement->execute();
    $row = $statement->fetch(PDO::FETCH_ASSOC);
 
-   //a painting can have more than one genre so they come from PaintingGenres
+   //a painting can have several genres so they come from PaintingGenres
    $sql = 'select Genres.GenreID, Genres.GenreName
            from PaintingGenres
            join Genres on PaintingGenres.GenreID = Genres.GenreID
@@ -48,7 +46,7 @@ catch (PDOException $e) {
    die( $e->getMessage() );
 }
 
-//shows one line of the details table, empty values are skipped
+//empty values are skipped
 function outputDetail($label, $value) {
    if ($value == '' || $value == '0') return;
    echo '<tr><td class="four wide"><strong>' . $label . '</strong></td>';
@@ -68,22 +66,25 @@ function outputDetail($label, $value) {
 </head>
 <body>
    <main class="ui container">
-      <?php //the tab bar at the top ?>
       <?php include 'nav.php'; ?>
 
+      <?php if ($row && isset($_GET['updated'])) { ?>
+         <div class="ui positive message">The changes to this painting were saved.</div>
+      <?php } ?>
+
       <?php if (!$row) { ?>
-         <?php //the id was missing or no painting has that id (it may have been deleted) ?>
+         <?php //missing id or the painting was deleted ?>
          <div class="ui negative message">That painting could not be found.</div>
          <a class="ui button" href="artMain.php">Back to Artworks</a>
       <?php } else { ?>
          <?php
-         //some artists dont have a first name (like Rembrandt)
+         //some artists have no first name (like rembrandt)
          if ($row['FirstName'] != '')
             $artist = $row['FirstName'] . ' ' . $row['LastName'];
          else
             $artist = $row['LastName'];
 
-         //city and country are put together into one place
+         //city and country are joined into one place
          $place = $row['GalleryCity'];
          if ($row['GalleryCountry'] != '') {
             if ($place != '') $place .= ', ';
@@ -95,7 +96,6 @@ function outputDetail($label, $value) {
             $size = $row['Width'] . ' x ' . $row['Height'] . ' cm';
          ?>
 
-         <?php //the heading with the title, artist and year ?>
          <div class="ui secondary segment">
             <h1><?php echo htmlspecialchars($row['Title']); ?></h1>
             <p>
@@ -106,17 +106,16 @@ function outputDetail($label, $value) {
 
          <div class="ui segment">
             <div class="ui stackable grid">
-               <?php //the picture on the left ?>
                <div class="six wide column">
-                  <img class="ui fluid image" src="images/art/works/square-medium/<?php echo $row['ImageFileName']; ?>.jpg"
+                  <?php //?v= changes when a new picture is uploaded so the browser shows it ?>
+                  <img class="ui fluid image" src="images/art/works/square-medium/<?php echo htmlspecialchars($row['ImageFileName']); ?>.jpg?v=<?php echo @filemtime('images/art/works/square-medium/' . $row['ImageFileName'] . '.jpg'); ?>"
                      alt="<?php echo htmlspecialchars($row['Title']); ?>">
                </div>
 
-               <?php //the description and details on the right ?>
                <div class="ten wide column">
-                  <?php //the description already has html in it like <em> so it is not escaped ?>
+                  <?php //cleanDescription keeps only safe tags like <em> ?>
                   <?php if ($row['Description'] != '') { ?>
-                     <p><?php echo $row['Description']; ?></p>
+                     <p><?php echo cleanDescription($row['Description']); ?></p>
                   <?php } else { ?>
                      <p><em>No description yet.</em></p>
                   <?php } ?>
@@ -134,7 +133,6 @@ function outputDetail($label, $value) {
                         outputDetail('Accession number', $row['AccessionNumber']);
                         outputDetail('Copyright', $row['CopyrightText']);
                         ?>
-                        <?php //each genre links to its page on the Genres tab ?>
                         <?php if (count($genres) > 0) { ?>
                            <tr><td><strong>Genres</strong></td><td>
                            <?php foreach ($genres as $genre) { ?>
@@ -145,7 +143,7 @@ function outputDetail($label, $value) {
                      </tbody>
                   </table>
 
-                  <?php //links to the museum and wikipedia, only if the painting has them ?>
+                  <?php //only shown if the painting has them ?>
                   <?php if ($row['MuseumLink'] != '') { ?>
                      <a class="ui labeled icon primary button" href="<?php echo htmlspecialchars($row['MuseumLink']); ?>">
                         <i class="external icon"></i> View at the museum
@@ -161,6 +159,9 @@ function outputDetail($label, $value) {
          </div>
 
          <a class="ui button" href="artMain.php">Back to Artworks</a>
+         <?php if (isAdmin()) { ?>
+            <a class="ui primary button" href="editPainting.php?id=<?php echo $row['PaintingID']; ?>">Edit this painting</a>
+         <?php } ?>
       <?php } ?>
    </main>
 

@@ -1,28 +1,26 @@
-/* theme-salon.css is the "classic salon" look
-   an old european museum: parchment walls, burgundy and gold, and a gilded frame on every painting
-   it only changes how semantic ui looks, the pages themselves are the same */
+/*only restyles semantic ui, the pages stay the same*/
 
 @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap");
 
-/* the colors used everywhere, change them here to adjust the whole theme */
+/*change these to adjust the whole theme*/
 :root {
-   --wall:     #f1e7d0;   /* page background */
-   --wall-dim: #e3d3ae;   /* the darker edges of the page */
-   --mat:      #f8f1df;   /* the cream mat between frame and painting */
-   --ink:      #2e2018;   /* main text, a dark brown */
-   --muted:    #6f5a47;   /* captions and labels */
-   --line:     #cdb684;   /* thin gold-ish dividers */
-   --gold:     #a8832f;   /* the gold accent */
-   --burgundy: #6e1f2a;   /* the main accent */
+   --wall:     #f1e7d0;
+   --wall-dim: #e3d3ae;
+   --mat:      #f8f1df;
+   --ink:      #2e2018;
+   --muted:    #6f5a47;
+   --line:     #cdb684;
+   --gold:     #a8832f;
+   --burgundy: #6e1f2a;
    --serif:    'EB Garamond', Garamond, Georgia, serif;
    --caps:     'Cinzel', 'Times New Roman', serif;
-   /* the gilded frame, light and dark bands make it look like carved gold */
+   /*light and dark bands make it look like carved gold*/
    --gilt: linear-gradient(135deg, #7a5a22 0%, #e2c272 22%, #9a7633 45%, #f0d88e 68%, #8b6a2a 85%, #c9a75a 100%);
 }
 
-/* ---------- page ---------- */
+/*page*/
 
-/* the darker edges make the middle of the page look lit */
+/*darker edges make the middle look lit*/
 body {
    background: radial-gradient(ellipse at center, var(--wall) 40%, var(--wall-dim) 100%) fixed;
    background-color: var(--wall);
@@ -36,7 +34,7 @@ main.ui.container {
    padding: 1.5rem 0 4rem;
 }
 
-/* semantic ui puts its own font and color on headings so !important is needed here */
+/*semantic ui sets its own heading font so !important is needed*/
 h1, h2, h3, h4, h5,
 .ui.header,
 .ui.cards > .card > .content > .header,
@@ -54,9 +52,8 @@ h1, h2, h3, h4, h5,
 a { color: var(--burgundy); }
 a:hover { color: var(--gold); }
 
-/* ---------- tab bar (nav.php) ---------- */
+/*tab bar (nav.php)*/
 
-/* gold double lines above and below, like the trim on an old wall */
 .ui.pointing.menu {
    background: transparent;
    border: none;
@@ -77,7 +74,7 @@ a:hover { color: var(--gold); }
    padding: 0.95rem 1.2rem;
 }
 
-/* removes the little dividers between tabs and the arrow under the active tab */
+/*hides semantic's tab dividers and the arrow under the active tab*/
 .ui.pointing.menu .item:before,
 .ui.pointing.menu .active.item:after {
    display: none;
@@ -94,7 +91,6 @@ a:hover { color: var(--gold); }
    color: var(--burgundy);
 }
 
-/* "logged in as" is just text so it stays quiet */
 .ui.pointing.menu span.item {
    font-family: var(--serif) !important;
    font-style: italic;
@@ -104,7 +100,7 @@ a:hover { color: var(--gold); }
    font-size: 0.95rem;
 }
 
-/* ---------- page heading (the grey box on every page) ---------- */
+/*page heading*/
 
 .ui.secondary.segment {
    background: transparent;
@@ -125,7 +121,6 @@ a:hover { color: var(--gold); }
    margin-bottom: 0.4rem;
 }
 
-/* a small ornament under each page title */
 .ui.secondary.segment h1:after {
    content: '\2014\00a0\00a0\2766\00a0\00a0\2014';
    display: block;
@@ -141,7 +136,7 @@ a:hover { color: var(--gold); }
    font-style: italic;
 }
 
-/* ---------- content area (the white box on every page) ---------- */
+/*content area*/
 
 .ui.segment {
    background: transparent;
@@ -152,7 +147,7 @@ a:hover { color: var(--gold); }
    padding: 0;
 }
 
-/* ---------- painting and genre cards ---------- */
+/*painting and genre cards*/
 
 .ui.cards > .card,
 .ui.card {
@@ -162,7 +157,7 @@ a:hover { color: var(--gold); }
    box-shadow: none;
 }
 
-/* semantic ui lifts linked cards with its own shadow, the frame shadow below replaces that */
+/*semantic lifts linked cards with a shadow, the frame shadow replaces it*/
 .ui.cards > a.card:hover,
 .ui.cards > .card:hover {
    box-shadow: none;
@@ -170,7 +165,7 @@ a:hover { color: var(--gold); }
    background: transparent;
 }
 
-/* the gilded frame: the border is the gold, the padding is the cream mat */
+/*the border is the gold, the padding is the cream mat*/
 .ui.cards > .card > .image,
 .ui.card > .image,
 .ui.items > .item > .image {
@@ -183,7 +178,7 @@ a:hover { color: var(--gold); }
    transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
-/* semantic removes the top border of a card's first child, this puts the gold top back */
+/*semantic removes the first child's top border, this puts the gold back*/
 .ui.cards > .card > .image:first-child,
 .ui.card > .image:first-child {
    border-top: 10px solid transparent !important;
@@ -200,7 +195,6 @@ a:hover { color: var(--gold); }
    box-shadow: 0 20px 30px -10px rgba(60, 35, 15, 0.6);
 }
 
-/* a thin dark edge where the painting meets the mat */
 .ui.cards > .card > .image > img,
 .ui.card > .image > img,
 .ui.card > .image img,
@@ -209,7 +203,6 @@ a:hover { color: var(--gold); }
    box-shadow: 0 0 0 1px rgba(60, 40, 20, 0.35);
 }
 
-/* the caption under each picture is a small brass plaque */
 .ui.cards > .card > .content,
 .ui.card > .content {
    text-align: center;
@@ -249,7 +242,6 @@ a:hover { color: var(--gold); }
    font-size: 0.9rem;
 }
 
-/* the delete button area and the genre / gallery card captions */
 .ui.cards > .card > .extra,
 .ui.card > .extra {
    border-top: none !important;
@@ -260,9 +252,9 @@ a:hover { color: var(--gold); }
    font-style: italic;
 }
 
-/* the delete area is also a .content so it gets the plaque border, this closes its top edge */
-/* no padding so the delete button fills the whole box */
-/* square corners (semantic rounds the last thing in a card) and pulled up 1px so it shares the plaque's bottom line */
+/*the delete area is also a .content, this closes its top edge*/
+/*no padding so the button fills the box*/
+/*square corners and pulled up 1px to share the plaque's bottom line*/
 .ui.cards > .card > .extra.content,
 .ui.card > .extra.content {
    border-top: 1px solid var(--line) !important;
@@ -271,7 +263,6 @@ a:hover { color: var(--gold); }
    margin-top: -1px;
 }
 
-/* the box is the only border around delete, the button itself has none and is bigger */
 .ui.cards > .card > .extra.content .ui.red.basic.button,
 .ui.card > .extra.content .ui.red.basic.button {
    box-shadow: none !important;
@@ -280,7 +271,6 @@ a:hover { color: var(--gold); }
    padding: 1.1em 1.5em;
 }
 
-/* pointing at delete turns the box burgundy */
 .ui.cards > .card > .extra.content:hover,
 .ui.card > .extra.content:hover {
    border-color: var(--burgundy) !important;
@@ -297,7 +287,7 @@ a:hover { color: var(--gold); }
    font-size: 1.1rem;
 }
 
-/* more space between cards so the frames dont touch */
+/*extra space so the frames dont touch*/
 .ui.cards {
    margin: 0 -1.3em;
 }
@@ -320,7 +310,7 @@ a:hover { color: var(--gold); }
    .ui.six.doubling.cards > .card { width: calc(100% - 2.6em); }
 }
 
-/* ---------- artist page list and paintings ---------- */
+/*artist page*/
 
 .ui.link.list .item {
    color: var(--muted) !important;
@@ -348,7 +338,7 @@ a:hover { color: var(--gold); }
    line-height: 1.7;
 }
 
-/* ---------- buttons ---------- */
+/*buttons*/
 
 .ui.button {
    font-family: var(--caps) !important;
@@ -369,7 +359,6 @@ a:hover { color: var(--gold); }
    box-shadow: inset 0 0 0 1px var(--burgundy);
 }
 
-/* burgundy with a thin gold line inside, like a museum banner */
 .ui.primary.button {
    background: var(--burgundy);
    color: var(--mat);
@@ -382,7 +371,6 @@ a:hover { color: var(--gold); }
    box-shadow: inset 0 0 0 3px #842735, inset 0 0 0 4px var(--gold);
 }
 
-/* delete stays quiet until you point at it */
 .ui.red.basic.button {
    box-shadow: inset 0 0 0 1px var(--line) !important;
    color: var(--muted) !important;
@@ -394,7 +382,7 @@ a:hover { color: var(--gold); }
    color: var(--burgundy) !important;
 }
 
-/* ---------- forms, dropdowns and inputs ---------- */
+/*forms and inputs*/
 
 .ui.form .field > label {
    font-family: var(--caps) !important;
@@ -430,13 +418,11 @@ select:focus {
    outline: none;
 }
 
-/* the forms sit in the middle of the page under the centered heading */
 .ui.form {
    max-width: 560px;
    margin: 0 auto;
 }
 
-/* the sort and gallery dropdowns sit on one line with their button */
 .ui.secondary.segment form {
    margin-top: 1rem;
 }
@@ -445,7 +431,7 @@ select:focus {
    margin: 0 0.5rem;
 }
 
-/* ---------- messages ---------- */
+/*messages*/
 
 .ui.message {
    border-radius: 0;
@@ -467,14 +453,13 @@ select:focus {
    letter-spacing: 0.08em;
 }
 
-/* ---------- painting detail page ---------- */
+/*painting detail page*/
 
 .ui.grid > .column > p {
    font-size: 1.12rem;
    line-height: 1.8;
 }
 
-/* the first letter of the description is a big burgundy capital, like an old book */
 .ui.grid > .column > p:first-child::first-letter {
    float: left;
    font-family: var(--caps);
@@ -484,8 +469,8 @@ select:focus {
    color: var(--burgundy);
 }
 
-/* the big picture on the detail pages gets a thicker frame */
-/* only the picture right inside a column, so the artist page pictures dont get two frames */
+/*thicker frame on the detail picture*/
+/*only a picture directly in a column, so artist page pictures dont get two frames*/
 .ui.grid > .column > img {
    border-radius: 0;
    background: var(--mat);

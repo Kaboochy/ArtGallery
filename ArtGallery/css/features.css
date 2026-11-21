@@ -1,0 +1,355 @@
+
+/*task 5: phone and tablet*/
+
+/*wrap the tab bar instead of running off small screens*/
+.ui.pointing.menu {
+   flex-wrap: wrap;
+}
+
+.ui.pointing.menu .right.menu {
+   flex-wrap: wrap;
+   margin-left: auto;
+}
+
+@media only screen and (max-width: 767px) {
+   main.ui.container {
+      padding-top: 0.75rem;
+   }
+
+   .ui.pointing.menu .item {
+      padding: 0.7rem 0.75rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+   }
+
+   /*on a phone the login side gets its own centered line*/
+   .ui.pointing.menu .right.menu {
+      width: 100%;
+      justify-content: center;
+      border-top: 1px dotted var(--line);
+   }
+
+   .ui.secondary.segment {
+      padding: 1.75rem 0 1.5rem;
+   }
+
+   .ui.secondary.segment h1 {
+      font-size: 1.9rem;
+   }
+
+   /*thinner frame so the picture stays big on a phone*/
+   .ui.grid > .column > img {
+      padding: 8px;
+      border-width: 10px;
+   }
+
+   /*scroll sideways instead of squashing*/
+   .table-scroll {
+      overflow-x: auto;
+   }
+}
+
+/*task 7: form hints and errors*/
+
+/*message added by js/formCheck.js*/
+.ui.form .field-error {
+   margin-top: 0.35em;
+   color: var(--burgundy);
+   font-size: 0.92rem;
+   font-style: italic;
+}
+
+.ui.form .field-error:before {
+   content: '\26A0\00a0';
+   font-style: normal;
+}
+
+.ui.form .field.error input[type="text"],
+.ui.form .field.error input[type="password"],
+.ui.form .field.error textarea {
+   border-color: var(--burgundy) !important;
+   background: #fbeeea !important;
+}
+
+.ui.form .field.error label {
+   color: var(--burgundy) !important;
+}
+
+/*some pages dont load combobox.css, which also has this*/
+.ui.form .field small {
+   display: block;
+   margin-top: 0.4em;
+   color: var(--muted);
+   font-style: italic;
+}
+
+.ui.form textarea {
+   background: var(--mat) !important;
+   border: 1px solid var(--line) !important;
+   border-radius: 0 !important;
+   color: var(--ink) !important;
+   font-family: var(--serif) !important;
+   font-size: 1rem;
+   line-height: 1.5;
+}
+
+.ui.form textarea:focus {
+   border-color: var(--burgundy) !important;
+}
+
+.ui.form textarea::placeholder {
+   color: #a08e76;
+   font-style: italic;
+}
+
+.ui.form input[type="file"] {
+   background: transparent !important;
+   border: 1px dashed var(--line) !important;
+   border-radius: 0 !important;
+   padding: 0.6em !important;
+   font-family: var(--serif);
+}
+
+.ui.form input.readonly {
+   background: transparent !important;
+   color: var(--muted) !important;
+   border-style: dotted !important;
+}
+
+.form-note {
+   margin-top: 1.25rem;
+   color: var(--muted);
+   font-style: italic;
+}
+
+/*task 1: edit pages*/
+
+.edit-preview {
+   text-align: center;
+   margin-bottom: 1.5rem;
+}
+
+.edit-preview img {
+   max-width: 220px;
+   width: 100%;
+   background: var(--mat);
+   padding: 8px;
+   border: 10px solid transparent;
+   border-image: var(--gilt) 1;
+   box-shadow: 0 12px 22px -8px rgba(60, 35, 15, 0.5);
+}
+
+.ui.cards > .card > .extra.content.admin-buttons {
+   display: flex;
+}
+
+.ui.cards > .card > .extra.content.admin-buttons > * {
+   flex: 1;
+}
+
+.ui.cards > .card > .extra.content.admin-buttons .ui.basic.button:not(.red) {
+   box-shadow: none !important;
+   border-radius: 0 !important;
+   border-right: 1px solid var(--line);
+   color: var(--muted) !important;
+   font-size: 0.95rem;
+   padding: 1.1em 1em;
+   background: transparent !important;
+   margin: 0;
+}
+
+.ui.cards > .card > .extra.content.admin-buttons .ui.basic.button:not(.red):hover {
+   color: var(--burgundy) !important;
+   background: rgba(110, 31, 42, 0.06) !important;
+}
+
+.ui.secondary.segment > .ui.button {
+   margin-top: 0.5rem;
+}
+
+/*task 2: summary line*/
+
+.ui.secondary.segment p.summary {
+   font-style: italic;
+   margin-bottom: 0.75rem;
+}
+
+.ui.secondary.segment p.summary a {
+   color: var(--muted);
+   border-bottom: 1px dotted var(--line);
+}
+
+.ui.secondary.segment p.summary a:hover {
+   color: var(--burgundy);
+}
+
+#sortForm label {
+   color: var(--muted);
+   font-style: italic;
+}
+
+#sortForm .ui.button {
+   margin: 0.25rem 0.15rem;
+}
+
+/*task 3: page links*/
+
+.page-status {
+   text-align: center;
+   color: var(--muted);
+   font-style: italic;
+   margin-bottom: 1.5rem;
+}
+
+.ui.pagination.menu {
+   display: flex;
+   flex-wrap: wrap;
+   justify-content: center;
+   width: fit-content;
+   max-width: 100%;
+   margin: 0.5rem auto 0;
+   background: transparent;
+   border: none;
+   border-top: 1px solid var(--line);
+   border-bottom: 1px solid var(--line);
+   border-radius: 0;
+   box-shadow: none;
+}
+
+.ui.pagination.menu .item {
+   font-family: var(--caps) !important;
+   color: var(--muted);
+   font-size: 0.8rem;
+   letter-spacing: 0.1em;
+   min-width: 2.75em;
+   justify-content: center;
+}
+
+.ui.pagination.menu .item:before {
+   display: none;
+}
+
+.ui.pagination.menu a.item:hover {
+   background: rgba(110, 31, 42, 0.06);
+   color: var(--burgundy);
+}
+
+.ui.pagination.menu .active.item {
+   background: var(--burgundy);
+   color: var(--mat);
+}
+
+/*task 10: admin page and profile*/
+
+.admin-actions {
+   display: flex;
+   flex-wrap: wrap;
+   justify-content: center;
+   gap: 0.6rem;
+   margin-bottom: 2.5rem;
+}
+
+.admin-actions .ui.button {
+   margin: 0;
+}
+
+h2.section-title {
+   font-family: var(--caps) !important;
+   text-align: center;
+   letter-spacing: 0.06em;
+   margin: 1rem 0 1.5rem;
+}
+
+h2.section-title:after {
+   content: '\2014\00a0\00a0\2766\00a0\00a0\2014';
+   display: block;
+   font-family: var(--serif);
+   font-size: 1rem;
+   color: var(--gold);
+   margin-top: 0.2rem;
+}
+
+.ui.grid > .column > h3 {
+   font-family: var(--caps) !important;
+   font-size: 1rem;
+   letter-spacing: 0.08em;
+   color: var(--burgundy) !important;
+}
+
+.ui.table.user-table {
+   background: transparent;
+   border: 1px solid var(--line);
+   border-radius: 0;
+   color: var(--ink);
+}
+
+.ui.table.user-table thead th {
+   background: rgba(168, 131, 47, 0.12);
+   font-family: var(--caps);
+   font-size: 0.72rem;
+   letter-spacing: 0.1em;
+   text-transform: uppercase;
+   color: var(--burgundy);
+   border-radius: 0 !important;
+}
+
+.ui.table.user-table td {
+   border-top: 1px dotted var(--line);
+}
+
+.inline-form {
+   display: inline-flex;
+   gap: 0.35rem;
+   flex-wrap: wrap;
+}
+
+.inline-form .ui.mini.button {
+   margin: 0;
+   padding: 0.6em 0.9em;
+}
+
+/*artist page details*/
+
+.artist-info {
+   margin-bottom: 2rem;
+   padding-bottom: 1.5rem;
+   border-bottom: 1px solid var(--line);
+}
+
+.artist-info h2 {
+   font-style: italic;
+   margin-bottom: 0.25rem;
+}
+
+.artist-info .artist-facts {
+   color: var(--muted);
+   font-style: italic;
+}
+
+/*task 9: scraper*/
+
+.scrape-artist {
+   margin-bottom: 3rem;
+}
+
+.scrape-artist h3 {
+   font-style: italic;
+}
+
+.scrape-sql {
+   width: 100%;
+   min-height: 18em;
+   font-family: Consolas, 'Courier New', monospace;
+   font-size: 0.82rem;
+   background: var(--mat);
+   border: 1px solid var(--line);
+   color: var(--ink);
+   padding: 0.75em;
+}
+
+.scrape-thumb {
+   width: 70px;
+   height: 70px;
+   object-fit: cover;
+   box-shadow: 0 0 0 1px rgba(60, 40, 20, 0.35);
+}

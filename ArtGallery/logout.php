@@ -1,18 +1,16 @@
 <?php
-//logout.php logs the user out and sends them back to the login page
-//the Log out tab in nav.php links here
 
-//session_start has to run before the session can be cleared
+//the session has to be started before it can be cleared
 session_start();
 
 destroy_session_and_data();
 
-//back to the login page, loggedOut makes it show a "you logged out" message
+//loggedOut makes the login page show a message
 header('Location: artLogin.php?loggedOut=yes');
 exit;
 
-//i used this function from continue2.php in the www13 sample
-//it empties the session, deletes the session cookie and ends the session
+//from continue2.php in www13
+//empties the session, deletes its cookie and ends it
 function destroy_session_and_data()
 {
    $_SESSION = array();

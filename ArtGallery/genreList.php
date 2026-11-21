@@ -1,12 +1,9 @@
 <?php
-//this makes sure someone is logged in, if not it sends them to the login page
-require 'checkLogin.php';
+//public page, auth.php only starts the session
+require_once 'auth.php';
 
 require_once('dbConfig.php'); 
 
-/*
- Displays a list of genres
-*/
 function outputGenres() {
    try {
       $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
@@ -25,27 +22,21 @@ function outputGenres() {
    }
 }
 
-/*
- Displays a single genre
-*/
 function outputSingleGenre($row) {
    echo '<div class="ui fluid card">';
    echo '<div class="ui fluid image">';
-   $img = '<img src="images/art/genres/square-medium/' . $row['GenreId'] .'.jpg">';
+   $img = '<img src="images/art/genres/square-medium/' . $row['GenreId'] .'.jpg" alt="' . htmlspecialchars($row['GenreName']) . '">';
    echo constructGenreLink($row['GenreId'], $img);
    echo '</div>';
    echo '<div class="extra">';
    echo '<h4>';
-   echo constructGenreLink($row['GenreId'], $row['GenreName']);
+   echo constructGenreLink($row['GenreId'], htmlspecialchars($row['GenreName']));
    echo '</h4>';
-   echo '</div>';  // end class=extra
-   echo '</div>';  // end class=card
+   echo '</div>';  //end class=extra
+   echo '</div>';  //end class=card
 }
 
-/* 
-  Constructs a link given the genre id and a label (which could
-  be a name or even an image tag
-*/
+//the label can be a name or an image tag
 function constructGenreLink($id, $label) {
    $link = '<a href="genreDetail.php?id=' . $id . '">';
    $link .= $label;
