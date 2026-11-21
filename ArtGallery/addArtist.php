@@ -1,20 +1,14 @@
 <?php
-//addArtist.php is the page for adding a new artist to the artists table
-//the name boxes show the artists already saved as you type so the same artist isnt added twice
-
-//only admins (staff) can add artists (task 10)
+//only admins can add artists
 require 'checkAdmin.php';
 
-//this has the database name, user and password
 require_once('dbConfig.php');
 
-//shared artist functions (artist list, finding and adding artists)
 require_once('artistHelpers.php');
 
-//the themed type-in dropdown
 require_once('combobox.php');
 
-//these hold what the user typed so the form can show it again if there is a mistake
+//kept so the form can show what was typed if there is an error
 $firstName = '';
 $lastName = '';
 $nationality = '';
@@ -23,9 +17,9 @@ $yearOfBirth = '';
 $yearOfDeath = '';
 $errors = array();
 
-//this runs when the ADD ARTIST button is clicked
+//runs when add artist is clicked
 if (isset($_POST['addArtist'])) {
-   //trim takes off extra spaces, preg_replace squashes double spaces inside names
+   //squash double spaces inside names
    $firstName = preg_replace('/\s+/', ' ', trim($_POST['firstName']));
    $lastName = preg_replace('/\s+/', ' ', trim($_POST['lastName']));
    $nationality = trim($_POST['nationality']);
@@ -33,7 +27,7 @@ if (isset($_POST['addArtist'])) {
    $yearOfBirth = trim($_POST['yearOfBirth']);
    $yearOfDeath = trim($_POST['yearOfDeath']);
 
-   //checks everything before saving, each problem gets added to $errors
+   //each problem is added to $errors
    if ($lastName == '')
       $errors[] = 'Please enter a last name (for one-name artists like Rembrandt, put it here).';
    else if (strlen($lastName) > 50)
@@ -58,17 +52,17 @@ if (isset($_POST['addArtist'])) {
        && (int)$yearOfDeath < (int)$yearOfBirth)
       $errors[] = 'The year of death cannot be before the year of birth.';
 
-   //years in the future dont make sense (task 7b)
+   //years in the future are not allowed
    if (ctype_digit($yearOfBirth) && (int)$yearOfBirth > (int)date('Y'))
       $errors[] = 'The year of birth cannot be after ' . date('Y') . '.';
    if (ctype_digit($yearOfDeath) && (int)$yearOfDeath > (int)date('Y'))
       $errors[] = 'The year of death cannot be after ' . date('Y') . '.';
 
-   //stops the same artist from being added twice
+   //stop the same artist being added twice
    if ($lastName != '' && findArtistIdByName(artistDisplayName($firstName, $lastName)) > 0)
       $errors[] = artistDisplayName($firstName, $lastName) . ' is already in the artists list.';
 
-   //no problems so save it and show the new artist on the artists page
+   //no errors so save and show the new artist
    if (count($errors) == 0) {
       try {
          $newId = insertArtist(null, $firstName, $lastName, $nationality, $gender, $yearOfBirth, $yearOfDeath);
@@ -90,12 +84,11 @@ if (isset($_POST['addArtist'])) {
    <title>Art Gallery - Add Artist</title>
    <link href="semantic/semantic.css" rel="stylesheet">
    <link href="css/theme.css" rel="stylesheet">
-   <?php //the ?v= number changes when the file changes, so browsers dont keep an old copy ?>
+   <?php //?v= changes when the file changes so the browser doesnt use an old copy ?>
    <link href="css/combobox.css?v=<?php echo filemtime("css/combobox.css"); ?>" rel="stylesheet">
 </head>
 <body>
    <main class="ui container">
-      <?php //the tab bar at the top ?>
       <?php include 'nav.php'; ?>
 
       <div class="ui secondary segment">
@@ -103,7 +96,6 @@ if (isset($_POST['addArtist'])) {
          <p>Type the artist's name. Artists already in the gallery show up as you type, so you can see if they are there already.</p>
       </div>
 
-      <?php //red box that lists every problem with what was typed ?>
       <?php if (count($errors) > 0) { ?>
          <div class="ui negative message">
             <div class="header">The artist was not added:</div>
@@ -116,9 +108,9 @@ if (isset($_POST['addArtist'])) {
       <?php } ?>
 
       <div class="ui segment">
-         <?php //data-check-form turns on the checks in js/formCheck.js (task 7a) ?>
+         <?php //data-check-form turns on js/formCheck.js ?>
          <form class="ui form" method="post" action="<?php echo $_SERVER['SCRIPT_NAME']; ?>" data-check-form>
-            <?php //this box only helps you check, the name is saved from the two boxes below it ?>
+            <?php //only for checking, the name is saved from the two boxes below ?>
             <div class="field">
                <label>Check the existing artists</label>
                <?php outputComboBox('artistCheck', '', 'Start typing a name to see if the artist is already here',
@@ -137,7 +129,6 @@ if (isset($_POST['addArtist'])) {
             <div class="two fields">
                <div class="field">
                   <label>Nationality</label>
-                  <?php //pick a nationality already used, or type a new one ?>
                   <?php outputComboBox('nationality', $nationality, 'for example Mexico',
                                        nationalityComboItems(), array('newLabel' => 'Use new nationality')); ?>
                </div>

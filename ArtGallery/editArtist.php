@@ -1,17 +1,14 @@
 <?php
-//editArtist.php changes the information of one artist (task 1)
-//the Edit artist button on the artists page links here with editArtist.php?id=
-//the ArtistID is the primary key so it is only shown, it can never be changed
-//the fields that can be changed: first and last name, nationality, gender, birth and death years, biography and link
+//ArtistID is the primary key so it is shown but never changed
 
-//only admins (staff) can change artists (task 10)
+//only admins can change artists
 require 'checkAdmin.php';
 require_once('dbConfig.php');
 require_once('artistHelpers.php');
 require_once('combobox.php');
 require_once('paintingHelpers.php');
 
-//(int) turns anything that isnt a number into 0 so it cant break the sql
+//(int) turns anything that isnt a number into 0
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if (isset($_POST['artistId'])) $id = (int)$_POST['artistId'];
 
@@ -19,7 +16,7 @@ $artist = getArtist($id);
 $errors = array();
 
 if ($artist) {
-   //the form starts with what is saved now, a 0 year means the year isnt known so the box starts empty
+   //a 0 year means unknown so the box starts empty
    $firstName = (string)$artist['FirstName'];
    $lastName = (string)$artist['LastName'];
    $nationality = (string)$artist['Nationality'];
@@ -29,7 +26,6 @@ if ($artist) {
    $details = (string)$artist['Details'];
    $artistLink = (string)$artist['ArtistLink'];
 
-   //this runs when SAVE CHANGES is clicked
    if (isset($_POST['save'])) {
       $firstName = preg_replace('/\s+/', ' ', trim($_POST['firstName']));
       $lastName = preg_replace('/\s+/', ' ', trim($_POST['lastName']));
@@ -40,7 +36,7 @@ if ($artist) {
       $details = trim($_POST['details']);
       $artistLink = trim($_POST['artistLink']);
 
-      //server side checks (task 7b), the same ones as the Add Artist page
+      //same checks as the add artist page
       if ($lastName == '')
          $errors[] = 'Please enter a last name (for one-name artists like Rembrandt, put it here).';
       else if (strlen($lastName) > 50)
@@ -62,7 +58,6 @@ if ($artist) {
       else if ($yearOfDeath != '' && (int)$yearOfDeath > (int)date('Y'))
          $errors[] = 'The year of death cannot be after ' . date('Y') . '.';
 
-      //birth has to come before death
       if (ctype_digit($yearOfBirth) && ctype_digit($yearOfDeath) && (int)$yearOfDeath < (int)$yearOfBirth)
          $errors[] = 'The year of death cannot be before the year of birth.';
 
@@ -71,14 +66,14 @@ if ($artist) {
       if (!isValidLink($artistLink))
          $errors[] = 'The link has to start with http:// or https://';
 
-      //the new name cant be the same as a different artist's name
+      //the new name cant belong to a different artist
       if ($lastName != '') {
          $sameName = findArtistIdByName(artistDisplayName($firstName, $lastName));
          if ($sameName > 0 && $sameName != $id)
             $errors[] = artistDisplayName($firstName, $lastName) . ' is already another artist in the list.';
       }
 
-      //no problems so save with one prepared update, the where uses the id so only this artist changes
+      //the where uses the id so only this artist changes
       if (count($errors) == 0) {
          try {
             $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
@@ -88,7 +83,7 @@ if ($artist) {
                         YearOfBirth=:born, YearOfDeath=:died, Details=:details, ArtistLink=:link
                     where ArtistID=:id';
             $statement = $pdo->prepare($sql);
-            //blank values are saved as null, a blank year is saved as 0 like the rest of the table
+            //blank values are saved as null, a blank year as 0
             $statement->bindValue(':first', $firstName == '' ? null : $firstName);
             $statement->bindValue(':last', $lastName);
             $statement->bindValue(':nationality', $nationality == '' ? null : $nationality);

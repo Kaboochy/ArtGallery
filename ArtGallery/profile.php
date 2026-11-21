@@ -1,14 +1,12 @@
 <?php
-//profile.php is the logged in person's own page (task 10)
-//they can see their account, change their name, email and the short "about me" text, and change their password
-//the user id and role cant be changed here (only an admin can change a role, on admin.php)
+//user id and role cant be changed here, only an admin changes roles
 require 'checkLogin.php';
 require_once('dbConfig.php');
 require_once('userHelpers.php');
 
 $me = getUser($_SESSION['username']);
 
-//the account was deleted by an admin while they were logged in
+//the account was deleted while they were logged in
 if (!$me) {
    header('Location: logout.php');
    exit;
@@ -18,7 +16,6 @@ $errors = array();
 $passwordErrors = array();
 $message = '';
 
-//this runs when SAVE PROFILE is clicked
 if (isset($_POST['saveProfile'])) {
    $forename = trim($_POST['forename']);
    $surname = trim($_POST['surname']);
@@ -58,7 +55,6 @@ if (isset($_POST['saveProfile'])) {
    $me['bio'] = $bio;
 }
 
-//this runs when CHANGE PASSWORD is clicked
 if (isset($_POST['changePassword'])) {
    try {
       $pdo = userDb();
@@ -66,7 +62,7 @@ if (isset($_POST['changePassword'])) {
       $statement->execute([':un' => $_SESSION['username']]);
       $row = $statement->fetch();
 
-      //the old password has to be right first so someone using an unlocked computer cant change it
+      //the current password must be right so nobody can change it from an unlocked computer
       if (!$row || !password_verify($_POST['currentPassword'], $row['password']))
          $passwordErrors[] = 'Your current password is not right.';
       checkNewPassword($_POST['newPassword'], $_POST['confirmPassword'], $passwordErrors);
@@ -118,7 +114,6 @@ if (isset($_POST['changePassword'])) {
 
       <div class="ui segment">
          <div class="ui stackable two column grid">
-            <?php //what is saved about the account ?>
             <div class="column">
                <h3>Account</h3>
                <table class="ui definition table">
@@ -136,7 +131,6 @@ if (isset($_POST['changePassword'])) {
                <?php } ?>
             </div>
 
-            <?php //the forms to change the profile and the password ?>
             <div class="column">
                <h3>Edit profile</h3>
                <?php if (count($errors) > 0) { ?>

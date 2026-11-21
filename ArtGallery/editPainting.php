@@ -1,10 +1,7 @@
 <?php
-//editPainting.php changes the information of one painting (task 1)
-//the Edit buttons on the artworks page and the painting detail page link here with editPainting.php?id=
-//the PaintingID is the primary key so it is only shown, it can never be changed
-//the fields that can be changed: title, artist, year, medium, gallery, description, wikipedia link, museum link and the picture
+//PaintingID is the primary key so it is shown but never changed
 
-//only admins (staff) can change paintings (task 10)
+//only admins can change paintings
 require 'checkAdmin.php';
 require_once('dbConfig.php');
 require_once('artistHelpers.php');
@@ -14,11 +11,10 @@ require_once('uploadHelpers.php');
 
 $imageFolder = 'images/art/works/square-medium/';
 
-//(int) turns anything that isnt a number into 0 so it cant break the sql
+//(int) turns anything that isnt a number into 0
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if (isset($_POST['paintingId'])) $id = (int)$_POST['paintingId'];
 
-//gets the painting with its artist and gallery names, or false if there is no painting with this id
 function getPaintingForEdit($id) {
    try {
       $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
@@ -42,7 +38,7 @@ function getPaintingForEdit($id) {
    }
 }
 
-//saves the changed fields with one prepared update, the where uses the id so only this painting changes
+//the where uses the id so only this painting changes
 function updatePainting($id, $title, $artistId, $year, $medium, $galleryId, $description, $wikiLink, $museumLink) {
    try {
       $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
@@ -88,7 +84,6 @@ if ($painting) {
    $wikiLink = (string)$painting['WikiLink'];
    $museumLink = (string)$painting['MuseumLink'];
 
-   //this runs when SAVE CHANGES is clicked
    if (isset($_POST['save'])) {
       $title = trim($_POST['title']);
       $artistName = preg_replace('/\s+/', ' ', trim($_POST['artistName']));
@@ -99,13 +94,13 @@ if ($painting) {
       $wikiLink = trim($_POST['wikiLink']);
       $museumLink = trim($_POST['museumLink']);
 
-      //server side checks (task 7b), each problem gets added to $errors
+      //each problem is added to $errors
       if ($title == '')
          $errors[] = 'Please enter a title.';
       else if (strlen($title) > 255)
          $errors[] = 'The title can be at most 255 characters.';
 
-      //the artist has to be one already in the artists table (new artists are added on the Add Artist tab)
+      //the artist has to exist already, new artists are added on the add artist tab
       $artistId = findArtistIdByName($artistName);
       if ($artistName == '')
          $errors[] = 'Please choose an artist.';
@@ -136,7 +131,7 @@ if ($painting) {
       if (!isValidLink($museumLink))
          $errors[] = 'The museum link has to start with http:// or https://';
 
-      //a new picture replaces the old file but keeps the same image file name (task 6)
+      //a new picture replaces the old file and keeps its name
       $uploading = uploadWasSent('imageFile');
       if ($uploading) {
          $uploadError = checkUpload('imageFile');
@@ -180,7 +175,6 @@ if ($painting) {
             <p>Change the details and click SAVE CHANGES. The painting ID cannot be changed.</p>
          </div>
 
-         <?php //red box that lists every problem the server found ?>
          <?php if (count($errors) > 0) { ?>
             <div class="ui negative message">
                <div class="header">The changes were not saved:</div>
@@ -196,7 +190,6 @@ if ($painting) {
             <form class="ui form" method="post" action="editPainting.php?id=<?php echo $id; ?>" enctype="multipart/form-data" data-check-form>
                <input type="hidden" name="paintingId" value="<?php echo $id; ?>">
 
-               <?php //the current picture, so the admin can see which painting this is ?>
                <div class="edit-preview">
                   <img src="<?php echo $imageFolder . htmlspecialchars($painting['ImageFileName']); ?>.jpg?v=<?php echo @filemtime($imageFolder . $painting['ImageFileName'] . '.jpg'); ?>"
                        alt="<?php echo htmlspecialchars($painting['Title']); ?>">

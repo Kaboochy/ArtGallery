@@ -1,10 +1,7 @@
 <?php
-//artLogin.php is the login page (part 4, task 10)
-//the form sends the user id and password to authenticate.php to be checked
-//visitors dont need to log in to look around, so there are links to the gallery and to register
 require_once 'auth.php';
 
-//someone already logged in doesnt need this page
+//someone already logged in skips this page
 if (isLoggedIn()) {
    header('Location: ' . (isAdmin() ? 'admin.php' : 'artMain.php'));
    exit;
@@ -28,7 +25,7 @@ if (isLoggedIn()) {
          <p>Staff and registered members log in here. Visitors can <a href="artMain.php">browse the gallery</a> without an account.</p>
       </div>
 
-      <?php //red message when authenticate.php sends someone back with ?error=1 ?>
+      <?php //authenticate.php sends people back with ?error=1 ?>
       <?php if (isset($_GET['error'])) { ?>
          <div class="ui negative message">Invalid user ID or password.</div>
       <?php } ?>
@@ -38,12 +35,12 @@ if (isLoggedIn()) {
          <div class="ui warning message">Please log in to open that page.</div>
       <?php } ?>
 
-      <?php //green message after logout.php sends someone back with ?loggedOut=yes ?>
+      <?php //logout.php sends people back with ?loggedOut=yes ?>
       <?php if (isset($_GET['loggedOut'])) { ?>
          <div class="ui positive message">You have been logged out.</div>
       <?php } ?>
 
-      <?php //the login form, the names userId and password are what authenticate.php reads ?>
+      <?php //userId and password are the names authenticate.php reads ?>
       <div class="ui segment">
          <form class="ui form" method="post" action="authenticate.php" data-check-form>
             <div class="field">

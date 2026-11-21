@@ -1,5 +1,5 @@
 <?php
-//anyone can look at the galleries (task 10)
+//public page, auth.php only starts the session
 require_once 'auth.php';
 
 require_once('dbConfig.php'); 
@@ -52,19 +52,18 @@ catch (PDOException $e) {
    </div>
 
 <div class="ui segment">
-   <?php //doubling makes the cards bigger on tablets and phones (task 5) ?>
+   <?php //doubling makes the cards bigger on tablets and phones ?>
    <div class="ui six doubling cards">
       <?php
-      // only display painting cards if one has been selected
+      //only show cards once a gallery is picked
       if ($_SERVER["REQUEST_METHOD"] == "GET") {
          if (isset($_GET['gallery']) && (int)$_GET['gallery'] > 0) {
-            //a prepared statement so nothing typed in the address bar can get into the sql
+            //prepared so nothing from the address bar reaches the sql
             $result = $pdo->prepare('select * from Paintings where GalleryId=:gallery');
             $result->bindValue(':gallery', (int)$_GET['gallery'], PDO::PARAM_INT);
             $result->execute();
             while ($row = $result->fetch()) {
       ?>
-               <?php //the card links to the painting's detail page ?>
                <a class="card" href="paintingDetail.php?id=<?php echo $row['PaintingID']; ?>">
                   <div class="image">
                      <img src="images/art/works/square-medium/<?php echo htmlspecialchars($row['ImageFileName']); ?>.jpg"
@@ -72,14 +71,14 @@ catch (PDOException $e) {
                         alt="<?php echo htmlspecialchars($row['Title']); ?>" >
                   </div>
                   <div class="extra"><?php echo htmlspecialchars($row['Title']); ?></div>
-               </a>  <!-- end class=card-->
+               </a>  <!--end class=card-->
       <?php
-            } // end while
-         } // end if (isset
-      } // end if ($_SERVER
+            } //end while
+         } //end if (isset
+      } //end if ($_SERVER
       ?>
-   </div>  <!-- end class=four cards-->
-</div>  <!-- end class=segment-->
+   </div>  <!--end class=cards-->
+</div>  <!--end class=segment-->
 </main>
 
 </body>

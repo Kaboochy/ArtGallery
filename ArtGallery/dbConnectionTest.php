@@ -1,5 +1,5 @@
 <?php
-//this makes sure someone is logged in, if not it sends them to the login page
+//only logged in people can open this
 require 'checkLogin.php';
 require_once('dbConfig.php');
 ?>

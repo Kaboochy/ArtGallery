@@ -1,34 +1,24 @@
 <?php
-//addPainting.php is the page for adding a new painting (part 3 bonus)
-//it has a form and an ADD button that saves the painting into the paintings table
-
-//only admins (staff) can add paintings (task 10)
+//only admins can add paintings
 require 'checkAdmin.php';
 
-//this has the database name, user and password
 require_once('dbConfig.php');
 
-//shared artist functions (the type-in artist dropdown, finding and adding artists)
 require_once('artistHelpers.php');
 
-//the themed type-in dropdown used for artist, genre and gallery
 require_once('combobox.php');
 
-//saving an uploaded picture into the images folder (task 6)
 require_once('uploadHelpers.php');
 
-//shared painting functions (genre and gallery dropdowns, finding ids, checking image names)
 require_once('paintingHelpers.php');
 
-//the folder where all the painting pictures are kept
 $imageFolder = 'images/art/works/square-medium/';
 
-//saves the new painting into the paintings table
-//every other column (cost, price, shape and so on) uses the database default
-//if $artistId is 0 the typed artist name is new, so the artist is added first
-//$galleryId and $genreId are 0 when they were left blank
-//the genre goes in the PaintingGenres table because a painting can have more than one
-//all the inserts are in one transaction so a failed painting never leaves a stray artist or genre row behind
+//other columns use the database defaults
+//$artistId 0 means the typed artist is new so it is added first
+//$galleryId and $genreId are 0 when left blank
+//genre goes in PaintingGenres since a painting can have more than one
+//one transaction so a failed painting never leaves a stray artist or genre row
 function addPainting($title, $artistId, $newArtistName, $year, $medium, $imageName, $galleryId, $genreId) {
    try {
       $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
@@ -72,7 +62,7 @@ function addPainting($title, $artistId, $newArtistName, $year, $medium, $imageNa
    }
 }
 
-//these hold what the user typed so the form can show it again if there is a mistake
+//kept so the form can show what was typed if there is an error
 $title = '';
 $artistName = '';
 $year = '';
@@ -82,11 +72,10 @@ $genreName = '';
 $galleryName = '';
 $errors = array();
 
-//this runs when the ADD button is clicked
+//runs when add is clicked
 if (isset($_POST['add'])) {
-   //trim takes off extra spaces at the start and end
    $title = trim($_POST['title']);
-   //squash extra spaces in the typed artist name
+   //squash extra spaces in the artist name
    $artistName = preg_replace('/\s+/', ' ', trim($_POST['artistName']));
    $year = trim($_POST['year']);
    $medium = trim($_POST['medium']);
@@ -94,14 +83,13 @@ if (isset($_POST['add'])) {
    $genreName = preg_replace('/\s+/', ' ', trim($_POST['genreName']));
    $galleryName = preg_replace('/\s+/', ' ', trim($_POST['galleryName']));
 
-   //checks everything before saving, each problem gets added to $errors
+   //each problem is added to $errors
    if ($title == '')
       $errors[] = 'Please enter a title.';
    else if (strlen($title) > 255)
       $errors[] = 'The title can be at most 255 characters.';
 
-   //the artist can be picked from the dropdown or typed in
-   //a name that is not in the list becomes a new artist when the painting is saved
+   //a name not in the list becomes a new artist when the painting is saved
    $artistId = 0;
    if ($artistName == '')
       $errors[] = 'Please choose or type an artist.';
@@ -114,22 +102,22 @@ if (isset($_POST['add'])) {
       }
    }
 
-   //the year has to be a number and cant be in the future (task 7b)
+   //year has to be a number and not in the future
    if (!ctype_digit($year) || strlen($year) > 4)
       $errors[] = 'Please enter the year as a number, like 1889.';
    else if ((int)$year > (int)date('Y'))
       $errors[] = 'The year cannot be after ' . date('Y') . '.';
 
-   //a picture can be uploaded (task 6) or it can already be in the images folder
+   //the picture can be uploaded or already be in the images folder
    $uploading = uploadWasSent('imageFile');
    if ($uploading) {
       $uploadError = checkUpload('imageFile');
       if ($uploadError != '') $errors[] = $uploadError;
-      //no image name typed, so use the uploaded file's own name
+      //no image name typed so use the uploaded file's name
       if ($imageName == '') $imageName = imageNameFromUpload('imageFile');
    }
 
-   //the image name can only have letters, numbers, - and _ so nobody can sneak in a path
+   //only letters, numbers, - and _ so nobody can sneak in a path
    if ($imageName == '')
       $errors[] = 'Please enter the image file name, or upload a picture.';
    else if (strlen($imageName) > 50 || !preg_match('/^[A-Za-z0-9_-]+$/', $imageName))
@@ -142,7 +130,7 @@ if (isset($_POST['add'])) {
    else if (!$uploading && !file_exists($imageFolder . $imageName . '.jpg'))
       $errors[] = 'There is no picture named ' . $imageName . '.jpg in the images folder. Upload one with the box below.';
 
-   //genre and gallery can be left blank, but if something is typed it has to be in the list
+   //genre and gallery are optional but must be in the list if typed
    $genreId = 0;
    if ($genreName != '') {
       $genreId = findIdByName('Genres', 'GenreID', 'GenreName', $genreName);
@@ -157,17 +145,16 @@ if (isset($_POST['add'])) {
          $errors[] = 'There is no gallery named ' . $galleryName . '. Please pick one from the list.';
    }
 
-   //if medium is left blank use the same default the database uses
+   //blank medium gets the same default as the database
    if ($medium == '') $medium = 'Oil on canvas';
 
-   //no problems so save it and go back to the main page where it shows up first
-   //the picture is saved last, only when everything else is fine
+   //the picture is saved last, only when everything else passed
    if (count($errors) == 0 && $uploading && !saveUpload('imageFile', $imageFolder, $imageName))
       $errors[] = 'The picture could not be saved into the images folder.';
 
    if (count($errors) == 0) {
       addPainting($title, $artistId, $artistName, $year, $medium, $imageName, $galleryId, $genreId);
-      //tell the main page if a new artist was made too
+      //tells the main page if a new artist was made too
       header('Location: artMain.php?added=yes' . ($artistId == 0 ? '&newArtist=yes' : ''));
       exit;
    }
@@ -182,12 +169,11 @@ if (isset($_POST['add'])) {
    <title>Art Gallery - Add Artwork</title>
    <link href="semantic/semantic.css" rel="stylesheet">
    <link href="css/theme.css" rel="stylesheet">
-   <?php //the ?v= number changes when the file changes, so browsers dont keep an old copy ?>
+   <?php //?v= changes when the file changes so the browser doesnt use an old copy ?>
    <link href="css/combobox.css?v=<?php echo filemtime("css/combobox.css"); ?>" rel="stylesheet">
 </head>
 <body>
    <main class="ui container">
-      <?php //the tab bar at the top ?>
       <?php include 'nav.php'; ?>
 
       <div class="ui secondary segment">
@@ -195,7 +181,6 @@ if (isset($_POST['add'])) {
          <p>Fill in the painting details and click ADD. Upload a .jpg picture, or type the name of one already in the images folder.</p>
       </div>
 
-      <?php //red box that lists every problem with what was typed ?>
       <?php if (count($errors) > 0) { ?>
          <div class="ui negative message">
             <div class="header">The painting was not added:</div>
@@ -207,9 +192,9 @@ if (isset($_POST['add'])) {
          </div>
       <?php } ?>
 
-      <?php //the add form, the values put back what the user typed if there was a mistake ?>
+      <?php //values put back what was typed if there was a mistake ?>
       <div class="ui segment">
-         <?php //enctype multipart is needed so the form can send a file (task 6), data-check-form turns on js/formCheck.js (task 7a) ?>
+         <?php //multipart is needed to send a file, data-check-form turns on js/formCheck.js ?>
          <form class="ui form" method="post" action="<?php echo $_SERVER['SCRIPT_NAME']; ?>" enctype="multipart/form-data" data-check-form>
             <div class="required field">
                <label>Title</label>
@@ -217,7 +202,7 @@ if (isset($_POST['add'])) {
             </div>
             <div class="required field">
                <label>Artist</label>
-               <?php //a type-in dropdown, a name that isnt in the list gets an "Add new artist" row ?>
+               <?php //a name not in the list gets an add new artist row ?>
                <?php outputComboBox('artistName', $artistName, 'Start typing, for example Vincent Van Gogh',
                                     artistComboItems(), array('newLabel' => 'Add new artist', 'required' => true)); ?>
                <small>Pick an artist from the list, or type a new name to add that artist.

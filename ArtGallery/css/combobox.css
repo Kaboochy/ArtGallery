@@ -1,25 +1,22 @@
-/* combobox.css styles the type-in dropdowns from combobox.php
-   the list is exactly as wide as its text box and uses the same font and size
-   the colors come from the theme (theme-salon.css), the values after the comma are used if a theme leaves one out */
+/*colors come from theme-salon.css, the value after the comma is a fallback*/
 
 .combo {
    position: relative;
    width: 100%;
 }
 
-/* room on the right for the arrow */
+/*room on the right for the arrow*/
 .ui.form .combo input[type="text"],
 .combo input[type="text"] {
    width: 100%;
    padding-right: 2.6em !important;
 }
 
-/* when the list is open the box and list look like one piece */
+/*box and list look like one piece when open*/
 .ui.form .combo.open input[type="text"] {
    border-color: var(--burgundy, #6e1f2a) !important;
 }
 
-/* the small arrow inside the right edge of the box */
 .combo-toggle {
    position: absolute;
    top: 0;
@@ -52,7 +49,7 @@
    border-color: var(--burgundy, #6e1f2a);
 }
 
-/* the list itself, same width, font and size as the box above it */
+/*same width, font and size as the box above*/
 .combo-list {
    position: absolute;
    top: 100%;
@@ -77,7 +74,7 @@
 
 .combo-list[hidden] { display: none; }
 
-/* each choice lines up with the text inside the box (same left padding) */
+/*same left padding as the box so the text lines up*/
 .combo-list li {
    display: flex;
    justify-content: space-between;
@@ -96,14 +93,13 @@
    color: var(--burgundy, #6e1f2a);
 }
 
-/* the part of the name that matches what was typed */
+/*typed letters inside a match*/
 .combo-list mark {
    background: transparent;
    color: var(--burgundy, #6e1f2a);
    font-weight: 600;
 }
 
-/* small grey text on the right, like a gallery's city */
 .combo-note {
    flex-shrink: 0;
    color: var(--muted, #6f5a47);
@@ -111,7 +107,6 @@
    font-size: 0.88em;
 }
 
-/* the "Add new artist" row at the bottom */
 .combo-list li.combo-new {
    border-top: 1px dotted var(--line, #cdb684);
    margin-top: 0.25em;
@@ -134,7 +129,6 @@
    cursor: default;
 }
 
-/* the hint under a box */
 .ui.form .field small {
    display: block;
    margin-top: 0.4em;
@@ -142,7 +136,6 @@
    font-style: italic;
 }
 
-/* a dropdown with a button on the same line (the find box on the Artists page) */
 .combo-row {
    display: flex;
    gap: 0.75rem;

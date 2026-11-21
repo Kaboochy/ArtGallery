@@ -1,6 +1,4 @@
-/* theme.css is loaded by every page right after semantic.css
-   change the file name below to switch the look of the whole site */
+/*change the file name below to switch the whole site's look*/
 @import url("theme-salon.css");
 
-/* the styles for the final project features (edit pages, page links, error messages, admin, phone layout) */
 @import url("features.css");

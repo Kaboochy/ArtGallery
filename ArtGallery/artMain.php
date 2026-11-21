@@ -1,28 +1,19 @@
 <?php
-//artMain.php is the main page of the art gallery (part 3)
-//it shows the paintings as cards, a page at a time
-//task 2: sort by date added, title, artist or year, ascending or descending, and a summary of each table
-//task 3: 20 paintings per page with page links under the cards
-//task 4: a search box that suggests titles or artists while you type (js/search.js asks suggest.php)
-//task 10: everyone can look, only admins see the edit and delete buttons
-
-//starts the session so the page knows who is looking (anyone can open this page)
+//anyone can open this page, auth.php just starts the session
 require_once 'auth.php';
 
-//this has the database name, user and password
 require_once('dbConfig.php');
 
-//how many paintings show on one page
 define('PER_PAGE', 20);
 
-//deletes a painting and everything in other tables that points to it
-//the transaction makes all the deletes happen together or none at all
+//deletes a painting and every row that points to it
+//a transaction so all the deletes happen or none do
 function deletePainting($id) {
    try {
       $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-      //related tables go first and the painting itself goes last
+      //related tables first, the painting last
       $sqlList = array(
          'delete from PaintingGenres where PaintingID=:id',
          'delete from PaintingSubjects where PaintingID=:id',
@@ -41,13 +32,13 @@ function deletePainting($id) {
       $pdo = null;
    }
    catch (PDOException $e) {
-      //if something went wrong undo any deletes that already happened
+      //undo any deletes that already happened
       if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
       die( $e->getMessage() );
    }
 }
 
-//the summary report (task 2): how many rows each main table has
+//row counts for the summary line
 function getTableCounts() {
    try {
       $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
@@ -65,9 +56,8 @@ function getTableCounts() {
    }
 }
 
-//only the sort keys in this list are allowed, anything else turns into "added"
-//this way nothing typed in the address bar can get into the sql
-//each key is the order by used for it, the extra columns break ties so the order never jumps around
+//only these sort keys are allowed so nothing from the address bar reaches the sql
+//each key maps to its order by columns
 $sortKeys = array(
    'added'  => array('label' => 'Date added', 'sql' => 'Paintings.PaintingID'),
    'title'  => array('label' => 'Title',      'sql' => 'Paintings.Title'),
@@ -79,19 +69,18 @@ function cleanSortChoice($value, $sortKeys) {
    return isset($sortKeys[$value]) ? $value : 'added';
 }
 
-//asc or desc only, newest first is the normal order for "date added"
+//newest first is the default for date added
 function cleanDirection($value, $sort) {
    if ($value == 'asc' || $value == 'desc') return $value;
    return $sort == 'added' ? 'desc' : 'asc';
 }
 
-//the search can look in the title or in the artist's name (task 4)
 function cleanSearchField($value) {
    return $value == 'artist' ? 'artist' : 'title';
 }
 
-//builds the where part for the search, the words are only ever sent as a bound value
-//the search matches the start of a title or of the artist's last (or full) name
+//the search words are only ever sent as a bound value
+//matches the start of a title or of the artist's last or full name
 function searchWhere($q, $field) {
    if ($q == '') return '';
    if ($field == 'artist')
@@ -99,7 +88,7 @@ function searchWhere($q, $field) {
    return ' where Paintings.Title like :q1';
 }
 
-//% and _ mean "anything" in like, so they are escaped to mean themselves, then % is added to match the start
+//% and _ are wildcards in like so they are escaped, then % matches the start
 function likePrefix($q) {
    return addcslashes($q, '\\%_') . '%';
 }
@@ -110,7 +99,6 @@ function bindSearch($statement, $q, $field) {
    if ($field == 'artist') $statement->bindValue(':q2', likePrefix($q));
 }
 
-//how many paintings match the search (all of them when there is no search)
 function countPaintings($q, $field) {
    try {
       $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
@@ -129,20 +117,19 @@ function countPaintings($q, $field) {
    }
 }
 
-//shows one page of paintings in the order picked in the sort options
 function outputPaintings($sortKeys, $state, $offset) {
    try {
       $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-      //every column of the sort key gets the direction, then the title and id break ties
+      //every sort column gets the direction, then title and id break ties
       $columns = explode(',', $sortKeys[$state['sort']]['sql']);
       $orderBy = array();
       foreach ($columns as $column) $orderBy[] = trim($column) . ' ' . $state['dir'];
       $orderBy[] = 'Paintings.Title';
       $orderBy[] = 'Paintings.PaintingID';
 
-      //the join gets the artist name from the artists table
+      //the join gets the artist name
       $sql = 'select Paintings.PaintingID, Paintings.Title, Paintings.ImageFileName,
                      Paintings.YearOfWork, Artists.FirstName, Artists.LastName
               from Paintings
@@ -165,25 +152,23 @@ function outputPaintings($sortKeys, $state, $offset) {
    }
 }
 
-//makes a link back to this page that keeps the sort, search and page, with some of them changed
+//link back to this page that keeps the sort, search and page
 function pageLink($state, $changes = array()) {
    $params = array_merge($state, $changes);
-   //leave out the values that are the same as normal so the links stay short
+   //default values are left out to keep links short
    if ($params['q'] == '') { unset($params['q']); unset($params['field']); }
    if ($params['page'] == 1) unset($params['page']);
    return 'artMain.php?' . http_build_query($params);
 }
 
-//shows one painting card with its picture, title, artist and year
-//admins also get edit and delete buttons, the page state is passed along so the page stays the same after a delete
+//the page state is passed along so a delete returns to the same page
 function outputSinglePainting($row, $state) {
-   //some artists dont have a first name (like Rembrandt)
+   //some artists have no first name (like rembrandt)
    if ($row['FirstName'] != '')
       $artist = $row['FirstName'] . ' ' . $row['LastName'];
    else
       $artist = $row['LastName'];
 
-   //the picture and title link to the painting's detail page
    $link = 'paintingDetail.php?id=' . $row['PaintingID'];
 
    echo '<div class="card">';
@@ -195,10 +180,10 @@ function outputSinglePainting($row, $state) {
    echo '<a class="header" href="' . $link . '">' . htmlspecialchars($row['Title']) . '</a>';
    echo '<div class="meta">' . htmlspecialchars($artist) . '</div>';
    echo '<div class="description">' . $row['YearOfWork'] . '</div>';
-   echo '</div>';  // end class=content
+   echo '</div>';  //end class=content
 
    if (isAdmin()) {
-      //the edit link and the delete form, delete asks to confirm before it sends
+      //delete asks to confirm before it sends
       echo '<div class="extra content admin-buttons">';
       echo '<a class="ui basic fluid button" href="editPainting.php?id=' . $row['PaintingID'] . '">Edit</a>';
       echo '<form method="post" action="artMain.php"';
@@ -208,12 +193,12 @@ function outputSinglePainting($row, $state) {
       echo '<input type="hidden" name="back" value="' . htmlspecialchars(pageLink($state)) . '">';
       echo '<input class="ui red basic fluid button" type="submit" value="Delete">';
       echo '</form>';
-      echo '</div>';  // end class=extra content
+      echo '</div>';  //end class=extra content
    }
-   echo '</div>';  // end class=card
+   echo '</div>';  //end class=card
 }
 
-//prints the page links: first, previous, the pages near this one, next and last
+//first, prev, nearby pages, next and last
 function outputPagination($state, $totalPages) {
    if ($totalPages <= 1) return;
    $page = $state['page'];
@@ -222,7 +207,7 @@ function outputPagination($state, $totalPages) {
       echo '<a class="item" href="' . htmlspecialchars(pageLink($state, array('page' => 1))) . '" aria-label="First page">&laquo;</a>';
       echo '<a class="item" href="' . htmlspecialchars(pageLink($state, array('page' => $page - 1))) . '" aria-label="Previous page">&lsaquo; Prev</a>';
    }
-   //up to 2 pages on each side of this one
+   //up to 2 pages on each side of the current one
    $from = max(1, $page - 2);
    $to = min($totalPages, $page + 2);
    for ($n = $from; $n <= $to; $n++) {
@@ -238,24 +223,22 @@ function outputPagination($state, $totalPages) {
    echo '</nav>';
 }
 
-//this runs when a delete button is clicked, then it reloads the page
-//reloading stops a refresh from sending the delete again
+//reloading after a delete stops a refresh from sending it again
 if (isset($_POST['delete']) && isset($_POST['paintingId'])) {
-   //only admins can delete, anyone else is sent away
+   //only admins can delete
    if (!isAdmin()) {
       header('Location: artMain.php?notAllowed=yes');
       exit;
    }
    deletePainting((int)$_POST['paintingId']);
 
-   //go back to the same page, only links to this page are allowed
+   //only links back to artMain.php are allowed
    $back = 'artMain.php';
    if (isset($_POST['back']) && strpos($_POST['back'], 'artMain.php?') === 0) $back = $_POST['back'];
    header('Location: ' . $back . (strpos($back, '?') === false ? '?' : '&') . 'deleted=yes');
    exit;
 }
 
-//what is being shown: the sort, the direction, the search and the page
 $state = array();
 $state['sort'] = cleanSortChoice(isset($_GET['sort']) ? $_GET['sort'] : '', $sortKeys);
 $state['dir'] = cleanDirection(isset($_GET['dir']) ? $_GET['dir'] : '', $state['sort']);
@@ -265,12 +248,12 @@ $state['field'] = cleanSearchField(isset($_GET['field']) ? $_GET['field'] : '');
 $total = countPaintings($state['q'], $state['field']);
 $totalPages = max(1, (int)ceil($total / PER_PAGE));
 $state['page'] = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-//a page number that is too big or too small is moved back into range
+//out of range page numbers are moved back into range
 $state['page'] = min(max(1, $state['page']), $totalPages);
 $offset = ($state['page'] - 1) * PER_PAGE;
 
 $counts = getTableCounts();
-//the sort panel starts open when something other than the normal order is used
+//the sort panel starts open if the order was changed
 $sortChanged = !($state['sort'] == 'added' && $state['dir'] == 'desc');
 ?>
 <!DOCTYPE html>
@@ -286,13 +269,11 @@ $sortChanged = !($state['sort'] == 'added' && $state['dir'] == 'desc');
 </head>
 <body>
    <main class="ui container">
-      <?php //the tab bar at the top ?>
       <?php include 'nav.php'; ?>
 
-      <?php //the heading, the summary of each table and the search and sort forms ?>
       <div class="ui secondary segment">
          <h1>Artworks</h1>
-         <?php //summary report (task 2), each number links to its own page ?>
+         <?php //each count links to its page ?>
          <p class="summary">
             <?php echo $counts['Paintings']; ?> paintings &middot;
             <a href="artistPaintings.php"><?php echo $counts['Artists']; ?> artists</a> &middot;
@@ -303,7 +284,7 @@ $sortChanged = !($state['sort'] == 'added' && $state['dir'] == 'desc');
             <a class="ui primary button" href="addPainting.php">Add artwork</a>
          <?php } ?>
 
-         <?php //the search box (task 4), js/search.js shows suggestions under it while typing ?>
+         <?php //js/search.js shows suggestions under this box ?>
          <form id="searchForm" class="search-form" method="get" action="artMain.php" role="search">
             <label for="searchField" class="sr-only">Search in</label>
             <select name="field" id="searchField">
@@ -322,7 +303,7 @@ $sortChanged = !($state['sort'] == 'added' && $state['dir'] == 'desc');
             <input class="ui primary button" type="submit" value="Search">
          </form>
 
-         <?php //the sort options (task 2), js/artEffects.js puts them in a panel that slides open ?>
+         <?php //js/artEffects.js puts this form in a sliding panel ?>
          <form id="sortForm" method="get" action="artMain.php" data-start-open="<?php echo $sortChanged ? 'yes' : 'no'; ?>">
             <?php if ($state['q'] != '') { ?>
                <input type="hidden" name="q" value="<?php echo htmlspecialchars($state['q']); ?>">
@@ -334,13 +315,12 @@ $sortChanged = !($state['sort'] == 'added' && $state['dir'] == 'desc');
                   <option value="<?php echo $key; ?>" <?php if ($key == $state['sort']) echo 'selected'; ?>><?php echo $info['label']; ?></option>
                <?php } ?>
             </select>
-            <?php //the two buttons pick the direction, the one being used is filled in ?>
+            <?php //the button being used is filled in ?>
             <button class="ui <?php if ($state['dir'] == 'asc') echo 'primary '; ?>button" type="submit" name="dir" value="asc">Ascending &#9650;</button>
             <button class="ui <?php if ($state['dir'] == 'desc') echo 'primary '; ?>button" type="submit" name="dir" value="desc">Descending &#9660;</button>
          </form>
       </div>
 
-      <?php //messages after a delete, an add or a search ?>
       <?php if (isset($_GET['deleted'])) { ?>
          <div class="ui positive message">The painting and everything related to it were deleted.</div>
       <?php } ?>
@@ -358,7 +338,6 @@ $sortChanged = !($state['sort'] == 'added' && $state['dir'] == 'desc');
          </div>
       <?php } ?>
 
-      <?php //which paintings are showing, then the cards and the page links (task 3) ?>
       <div class="ui segment">
          <?php if ($total > 0) { ?>
             <p class="page-status">Showing <?php echo $offset + 1; ?>&ndash;<?php echo min($offset + PER_PAGE, $total); ?> of <?php echo $total; ?>

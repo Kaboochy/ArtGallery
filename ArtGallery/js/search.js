@@ -1,7 +1,5 @@
-// search.js shows a list of suggestions under the search box on the artworks page while the user types (task 4)
-// it uses fetch (a promise) to ask suggest.php for titles or artists that start with the typed letters
-// the arrow keys move through the list, Enter opens the highlighted one, Escape closes the list
-// without javascript the box still works: Search shows the paintings that match on artMain.php
+//fetch returns a promise with the json from suggest.php
+//without javascript the search button still filters on artMain.php
 (function () {
    var form = document.getElementById('searchForm');
    if (!form) return;
@@ -9,11 +7,10 @@
    var input = document.getElementById('searchBox');
    var fieldSelect = document.getElementById('searchField');
    var list = document.getElementById('suggestList');
-   var timer = null;        // waits a moment after the last key so every key doesnt send a request
-   var lastAsked = 0;       // number of the newest request, older answers that come back late are ignored
-   var active = -1;         // which suggestion is highlighted
+   var timer = null;        //waits after the last key so every key doesnt send a request
+   var lastAsked = 0;       //answers to older requests are ignored
+   var active = -1;
 
-   // the placeholder shows an example for what is being searched
    function updatePlaceholder() {
       input.placeholder = fieldSelect.value === 'artist'
          ? 'Start typing an artist\'s last name, like Mon...'
@@ -45,7 +42,7 @@
       active = -1;
    }
 
-   // puts the typed letters in bold inside the suggestion, textContent keeps any < or & as plain text
+   //textContent keeps any < or & as plain text
    function addLabel(parent, text, typed) {
       var start = text.toLowerCase().indexOf(typed.toLowerCase());
       if (start < 0 || typed === '') { parent.textContent = text; return; }
@@ -56,7 +53,6 @@
       parent.appendChild(document.createTextNode(text.slice(start + typed.length)));
    }
 
-   // builds the list from the JSON suggest.php sent back
    function show(suggestions, typed) {
       list.innerHTML = '';
       if (suggestions.length === 0) {
@@ -94,7 +90,6 @@
       setActive(-1);
    }
 
-   // asks suggest.php for suggestions, the answer is a promise that gives back JSON
    function ask() {
       var typed = input.value.trim();
       if (typed === '') { close(); return; }
@@ -106,12 +101,12 @@
             return response.json();
          })
          .then(function (suggestions) {
-            // a newer request was sent while this one was on its way, so this answer is old
+            //a newer request was sent so this answer is old
             if (number !== lastAsked) return;
             show(suggestions, typed);
          })
          .catch(function () {
-            // no suggestions if something went wrong, the Search button still works
+            //no list if something failed, the search button still works
             if (number === lastAsked) close();
          });
    }
@@ -125,7 +120,7 @@
       if (input.value.trim() !== '') ask();
    });
 
-   // a short wait so a click on a suggestion happens before the list closes
+   //short wait so a click on a suggestion happens before the list closes
    input.addEventListener('blur', function () { setTimeout(close, 150); });
 
    input.addEventListener('keydown', function (e) {
@@ -137,7 +132,7 @@
          e.preventDefault();
          setActive(active - 1);
       } else if (e.key === 'Enter' && active >= 0) {
-         // Enter opens the highlighted suggestion instead of searching
+         //enter opens the highlighted suggestion instead of searching
          e.preventDefault();
          window.location.href = rows()[active].getAttribute('data-url');
       } else if (e.key === 'Escape') {
@@ -146,7 +141,7 @@
       }
    });
 
-   // mousedown instead of click so the box doesnt lose focus and close the list first
+   //mousedown fires before the box loses focus and closes the list
    list.addEventListener('mousedown', function (e) {
       var li = e.target.closest('li[data-url]');
       if (!li) return;
@@ -160,7 +155,7 @@
       if (index >= 0 && index !== active) setActive(index);
    });
 
-   // switching between title and artist asks again with the same letters
+   //switching title and artist searches again with the same letters
    fieldSelect.addEventListener('change', function () {
       updatePlaceholder();
       if (input.value.trim() !== '') { input.focus(); ask(); }

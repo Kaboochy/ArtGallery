@@ -1,17 +1,13 @@
 <?php
-//artistPaintings.php shows the list of artists and the paintings of the one picked
-//anyone can look, admins also get an Edit artist button (task 10)
 require_once 'auth.php';
 
 require_once('dbConfig.php');
 
-//shared artist functions (the type-in artist dropdown and finding an artist by name)
 require_once('artistHelpers.php');
 
-//the themed type-in dropdown
 require_once('combobox.php');
 
-//the find box sends the typed name, turn it into the artist id and show that artist
+//the find box sends a name, turn it into an id and jump to that artist
 $notFound = '';
 if (isset($_GET['artist']) && trim($_GET['artist']) != '') {
    $foundId = findArtistIdByName($_GET['artist']);
@@ -22,19 +18,15 @@ if (isset($_GET['artist']) && trim($_GET['artist']) != '') {
    $notFound = trim($_GET['artist']);
 }
 
-//(int) turns anything that isnt a number into 0 so it cant break the sql
+//(int) turns anything that isnt a number into 0
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $artist = $id > 0 ? getArtist($id) : false;
 
-
-/*
- Displays the list of artist links on the left-side of page
-*/
 function outputArtists($id) {
    try {
          $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
          $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-         //every artist is listed (it used to stop at 30, so artists late in the alphabet were missing)
+         //no limit, it used to stop at 30 so later artists were missing
          $sql = "select ArtistID, LastName from Artists order by LastName";
          $result = $pdo->query($sql);
          while ($row = $result->fetch()) {
@@ -50,9 +42,6 @@ function outputArtists($id) {
    }
 }
 
-/*
- Displays the list of paintings for the artist id specified in the id query string
-*/
 function outputPaintings($id) {
    try {
       if ($id > 0) {
@@ -78,11 +67,7 @@ function outputPaintings($id) {
    }
 }
 
-/*
- Displays a single painting
-*/
 function outputSinglePainting($row) {
-   //the picture and title link to the painting's detail page
    $link = 'paintingDetail.php?id=' . $row['PaintingID'];
 
    echo '<div class="item">';
@@ -97,8 +82,8 @@ function outputSinglePainting($row) {
    echo '<p class="description">';
    echo htmlspecialchars((string)$row['Excerpt']);
    echo '</p>';
-   echo '</div>';  // end class=content
-   echo '</div>';  // end class=item
+   echo '</div>';  //end class=content
+   echo '</div>';  //end class=item
 }
 
 ?>
@@ -110,7 +95,7 @@ function outputSinglePainting($row) {
    <title>Art Gallery - Artists</title>
    <link href="semantic/semantic.css" rel="stylesheet">
    <link href="css/theme.css" rel="stylesheet">
-   <?php //the ?v= number changes when the file changes, so browsers dont keep an old copy ?>
+   <?php //?v= changes when the file changes so the browser doesnt use an old copy ?>
    <link href="css/combobox.css?v=<?php echo filemtime("css/combobox.css"); ?>" rel="stylesheet">
 </head>
 <body>
@@ -119,11 +104,9 @@ function outputSinglePainting($row) {
       <div class="ui secondary segment">
          <h1>Artists</h1>
       </div>
-      <?php //green box after a new artist is added on the Add Artist tab ?>
       <?php if (isset($_GET['added'])) { ?>
          <div class="ui positive message">The new artist was added. They have no paintings yet, use the Add Artwork tab to add one.</div>
       <?php } ?>
-      <?php //green box after the edit page saved the changes (task 1) ?>
       <?php if (isset($_GET['updated'])) { ?>
          <div class="ui positive message">The changes to this artist were saved.</div>
       <?php } ?>
@@ -133,13 +116,11 @@ function outputSinglePainting($row) {
             <?php if (isAdmin()) { ?>You can add them on the <a href="addArtist.php">Add Artist</a> tab.<?php } ?></div>
       <?php } ?>
 
-      <?php //type an artist's name (or pick it from the dropdown) to jump to their paintings ?>
       <div class="ui segment">
          <form class="ui form" method="get" action="<?php echo $_SERVER['SCRIPT_NAME']; ?>">
-            <?php //the box takes up the row and the button sits at its right end ?>
             <div class="combo-row">
                <div class="combo-row-box">
-                  <?php //picking a name from the list goes straight to that artist ?>
+                  <?php //picking a name submits the form right away ?>
                   <?php outputComboBox('artist', '', 'Type an artist\'s name, for example Vincent Van Gogh',
                                        artistComboItems(), array('submitOnPick' => true)); ?>
                </div>
@@ -149,7 +130,7 @@ function outputSinglePainting($row) {
       </div>
 
       <div class="ui segment">
-         <?php //stackable puts the artist list above the paintings on a phone (task 5) ?>
+         <?php //stackable puts the list above the paintings on a phone ?>
          <div class="ui stackable grid">
            <div class="four wide column">
               <div class="ui link list">
@@ -157,7 +138,6 @@ function outputSinglePainting($row) {
               </div>
            </div>
            <div class="twelve wide column">
-              <?php //the picked artist's details, and an edit button for admins ?>
               <?php if ($artist) { ?>
                  <div class="artist-info">
                     <h2><?php echo htmlspecialchars(artistDisplayName($artist['FirstName'], $artist['LastName'])); ?></h2>

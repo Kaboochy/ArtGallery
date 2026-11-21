@@ -1,17 +1,10 @@
 <?php
-//combobox.php prints a type-in dropdown that matches the site theme
-//it replaces the plain browser dropdown (<datalist>), which looks different in every browser
-//the page also needs css/combobox.css in its head and js/combobox.js at the bottom of the body
+//replaces <datalist>, which looks different in every browser
+//needs css/combobox.css and js/combobox.js on the page
 //without javascript it still works as a normal text box
 
-//$name        the form field name, the typed or picked text is what gets sent
-//$value       what the box shows when the page loads (for putting back what the user typed)
-//$placeholder the grey hint text
-//$items       a list of choices, each one is array('value' => 'text', 'note' => 'small grey text on the right')
-//$options     'newLabel' => text for the "add new" row (leave out to only allow choices from the list)
-//             'submitOnPick' => true sends the form as soon as a choice is picked
-//             'id' => the id for the text box (made from $name if left out)
-//             'required' => true means the box cant be left empty (checked by js/formCheck.js and the browser)
+//$items: array('value' => text, 'note' => small grey text)
+//$options: newLabel allows new names, submitOnPick sends the form on pick, id sets the box id, required
 function outputComboBox($name, $value, $placeholder, $items, $options = array()) {
    $id = isset($options['id']) ? $options['id'] : 'combo-' . $name;
    $listId = $id . '-list';
@@ -28,10 +21,10 @@ function outputComboBox($name, $value, $placeholder, $items, $options = array())
       . ' autocomplete="off" role="combobox" aria-autocomplete="list"'
       . ' aria-expanded="false" aria-controls="' . htmlspecialchars($listId) . '">';
 
-   //the little arrow on the right opens the full list
+   //the arrow opens the full list
    echo '<button type="button" class="combo-toggle" tabindex="-1" aria-label="Show all choices"></button>';
 
-   //every choice, the javascript hides the ones that dont match what is typed
+   //js/combobox.js hides the choices that dont match
    echo '<ul class="combo-list" id="' . htmlspecialchars($listId) . '" role="listbox" hidden>';
    foreach ($items as $item) {
       echo '<li role="option" data-value="' . htmlspecialchars($item['value']) . '">';

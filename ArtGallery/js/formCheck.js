@@ -1,34 +1,20 @@
-// formCheck.js checks what the user typed before the form is sent (task 7a, client side error handling)
-// it works on every <form data-check-form>, the rules are written on each input:
-//   required             the box cant be empty
-//   data-check="year"    a whole number of up to 4 digits, not after this year
-//   data-check="email"   looks like name@example.com (blank is fine unless required)
-//   data-check="url"     starts with http:// or https:// (blank is fine unless required)
-//   data-check="username" 3 to 32 letters, numbers or _
-//   data-check="imagename" letters, numbers, - and _ only (no .jpg)
-//   data-check="jpg"     a file box: the picked file has to be a .jpg of at most 2 MB
-//   data-min-length="6"  at least that many characters
-//   data-match="name"    has to be the same as the box with that name (typing a password twice)
-//   data-after="name"    a year that cant be before the year in the box with that name (death after birth)
-// the server checks everything again (task 7b), this just tells the user sooner
-// each message shows in small red text right under its box and goes away once the box is fixed
+//rules go on each input: required, data-check (year, email, url, username, imagename, jpg), data-min-length, data-match, data-after
+//the server checks everything again, this just warns sooner
 (function () {
    var thisYear = new Date().getFullYear();
    var maxUploadBytes = 2 * 1024 * 1024;
 
-   // the label text of the box, used to start each message ("Year of birth: ...")
+   //the label text starts each message
    function labelOf(input) {
       var field = input.closest('.field');
       var label = field ? field.querySelector('label') : null;
       return label ? label.textContent.replace(/\s+/g, ' ').trim() : input.name;
    }
 
-   // finds another box in the same form by its name
    function other(form, name) {
       return form.querySelector('[name="' + name + '"]');
    }
 
-   // gives back the problem with one box, or '' if it is fine
    function problemWith(input, form) {
       var value = input.type === 'file' ? '' : input.value.trim();
       var rule = input.getAttribute('data-check');
@@ -66,7 +52,7 @@
       if (match && other(form, match) && value !== other(form, match).value.trim())
          return 'This does not match the box above.';
 
-      // the year of death cant be before the year of birth
+      //death year cant be before birth year
       var after = input.getAttribute('data-after');
       if (after && other(form, after)) {
          var first = other(form, after).value.trim();
@@ -76,7 +62,7 @@
       return '';
    }
 
-   // shows or clears the red message under one box, semantic ui turns the box red with the "error" class
+   //semantic ui turns the box red with the error class
    function showProblem(input, message) {
       var field = input.closest('.field') || input.parentNode;
       var note = field.querySelector('.field-error');
@@ -109,7 +95,7 @@
    }
 
    function setUp(form) {
-      // our own messages replace the browser's popups (without javascript the browser's checks still work)
+      //our messages replace the browser popups, without javascript the browser checks still run
       form.setAttribute('novalidate', 'novalidate');
 
       form.addEventListener('submit', function (e) {
@@ -124,12 +110,12 @@
       });
 
       boxesIn(form).forEach(function (input) {
-         // check a box when the user leaves it
+         //check a box when the user leaves it
          input.addEventListener('blur', function () {
-            // a short wait so picking from a type-in dropdown counts first
+            //short wait so picking from a type-in dropdown counts first
             setTimeout(function () { checkOne(input, form); }, 150);
          });
-         // once a box shows a problem, the message updates while they type so it goes away when fixed
+         //once a box is wrong, recheck while typing so the message clears when fixed
          input.addEventListener('input', function () {
             if (input.getAttribute('aria-invalid') === 'true') checkOne(input, form);
          });

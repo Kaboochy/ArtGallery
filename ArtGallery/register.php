@@ -1,25 +1,22 @@
 <?php
-//register.php lets a visitor make their own account (task 10)
-//new accounts are always normal users, only an admin can make someone an admin (on admin.php)
-//the boxes are checked in the browser by js/formCheck.js and again here on the server (task 7)
+//new accounts are always users, only an admin can make an admin
 require_once 'auth.php';
 require_once('dbConfig.php');
 require_once('userHelpers.php');
 
-//someone already logged in doesnt need a second account
+//someone logged in doesnt need a second account
 if (isLoggedIn()) {
    header('Location: profile.php');
    exit;
 }
 
-//these hold what the user typed so the form can show it again if there is a mistake
+//kept so the form can show what was typed if there is an error
 $forename = '';
 $surname = '';
 $username = '';
 $email = '';
 $errors = array();
 
-//this runs when the REGISTER button is clicked
 if (isset($_POST['register'])) {
    $forename = trim($_POST['forename']);
    $surname = trim($_POST['surname']);
@@ -32,7 +29,7 @@ if (isset($_POST['register'])) {
    checkUsername($username, $errors);
    checkNewPassword($password, $confirm, $errors);
 
-   //no problems so save the account and log them straight in
+   //no errors so save the account and log them straight in
    if (count($errors) == 0) {
       try {
          insertUser($forename, $surname, $username, $password, $email, 'user');
@@ -68,7 +65,6 @@ if (isset($_POST['register'])) {
          <p>Make a free account to get your own profile page.</p>
       </div>
 
-      <?php //red box that lists every problem the server found ?>
       <?php if (count($errors) > 0) { ?>
          <div class="ui negative message">
             <div class="header">The account was not made:</div>

@@ -1,9 +1,5 @@
 <?php
-//scrape.php is the web scraping page (task 9), only admins can use it
-//it reads the WikiArt pages saved in scrape/pages (3 artists, including Edouard Manet, and 5 paintings of each),
-//shows what was pulled out of each page, makes the SQL insert statements for them,
-//and can add them straight into the artists and paintings tables (copying each picture into the images folder)
-//it never opens the real wikiart.org site, only the saved copies on this computer
+//only reads the saved copies in scrape/pages, never the real site
 require 'checkAdmin.php';
 require_once('dbConfig.php');
 require_once('artistHelpers.php');
@@ -25,7 +21,7 @@ catch (PDOException $e) {
    die( $e->getMessage() );
 }
 
-//the Download button sends the SQL as a file instead of showing the page
+//download sends the sql as a file instead of the page
 if (isset($_GET['download'])) {
    header('Content-Type: text/plain; charset=utf-8');
    header('Content-Disposition: attachment; filename="scrapedArtwork.sql"');
@@ -33,8 +29,8 @@ if (isset($_GET['download'])) {
    exit;
 }
 
-//adds everything that was scraped into the database, in one transaction
-//gives back a list of lines saying what happened to each artist and painting
+//everything goes in one transaction
+//returns lines saying what happened to each artist and painting
 function importScraped($groups, $imageFolder) {
    $report = array();
    $copied = array();
@@ -47,7 +43,7 @@ function importScraped($groups, $imageFolder) {
          $artist = $group['artist'];
          list($first, $last) = splitArtistName($artist['name']);
 
-         //use the artist already in the table, or add them
+         //use the artist already in the table or add them
          $artistId = findArtistIdByName($artist['name']);
          if ($artistId == 0) {
             $artistId = insertArtist($pdo, $first, $last, $artist['nationality'], null, $artist['yearOfBirth'], $artist['yearOfDeath']);
@@ -56,7 +52,7 @@ function importScraped($groups, $imageFolder) {
          else {
             $report[] = $artist['name'] . ' is already in the artists table (ArtistID ' . $artistId . '), so the paintings were added to that artist.';
          }
-         //the biography and link are filled in only if the artist doesnt have them yet
+         //biography and link are only filled in if the artist has none
          $statement = $pdo->prepare("update Artists set Details = coalesce(nullif(Details, ''), :details),
                                      ArtistLink = coalesce(nullif(ArtistLink, ''), :link) where ArtistID = :id");
          $statement->bindValue(':details', $artist['details'] == '' ? null : $artist['details']);
@@ -67,7 +63,7 @@ function importScraped($groups, $imageFolder) {
          foreach ($group['paintings'] as $painting) {
             $imageName = scrapedImageName($painting);
 
-            //skip paintings that were imported before, or that the artist already has
+            //skip paintings imported before or that the artist already has
             $statement = $pdo->prepare('select count(*) from Paintings where ImageFileName = :image or (Title = :title and ArtistID = :artist)');
             $statement->execute(array(':image' => $imageName, ':title' => $painting['title'], ':artist' => $artistId));
             if ($statement->fetchColumn() > 0) {
@@ -79,12 +75,11 @@ function importScraped($groups, $imageFolder) {
                continue;
             }
 
-            //copy the saved picture into the images folder under its new name
             if (!copy($painting['image'], $imageFolder . $imageName . '.jpg'))
                throw new Exception('Could not copy the picture for ' . $painting['title']);
             $copied[] = $imageFolder . $imageName . '.jpg';
 
-            //the gallery is matched by the first part of the location ("Musée d'Orsay, Paris, France")
+            //gallery is matched by the first part of the location
             $locationParts = explode(',', $painting['location']);
             $galleryId = $painting['location'] != '' ? findIdByName('Galleries', 'GalleryID', 'GalleryName', trim($locationParts[0])) : 0;
 
@@ -98,14 +93,14 @@ function importScraped($groups, $imageFolder) {
             $statement->bindValue(':medium', $painting['medium'] != '' ? $painting['medium'] : 'Oil on canvas');
             $statement->bindValue(':width', $painting['width'] ? $painting['width'] : null);
             $statement->bindValue(':height', $painting['height'] ? $painting['height'] : null);
-            //the detail page shows the description as html, so < and & are turned into safe codes
+            //the detail page shows descriptions as html so < and & are escaped
             $statement->bindValue(':description', $painting['description'] == '' ? null : htmlspecialchars($painting['description'], ENT_NOQUOTES));
             $statement->bindValue(':excerpt', $painting['excerpt'] == '' ? null : $painting['excerpt']);
             $statement->bindValue(':wiki', $painting['wikiLink'] == '' ? null : $painting['wikiLink']);
             $statement->execute();
             $paintingId = $pdo->lastInsertId();
 
-            //the style on wikiart (like Impressionism) is one of our genres
+            //the wikiart style (like impressionism) matches one of our genres
             $styleParts = explode(',', $painting['style']);
             $genreId = $painting['style'] != '' ? findIdByName('Genres', 'GenreID', 'GenreName', trim($styleParts[0])) : 0;
             if ($genreId > 0) {
@@ -120,7 +115,7 @@ function importScraped($groups, $imageFolder) {
       $pdo = null;
    }
    catch (Exception $e) {
-      //undo everything, including the pictures that were already copied
+      //undo everything, including the pictures already copied
       if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
       foreach ($copied as $file) @unlink($file);
       $report[] = 'Nothing was imported because of an error: ' . htmlspecialchars($e->getMessage());
@@ -133,7 +128,7 @@ if (isset($_POST['import'])) {
    $report = importScraped($groups, $imageFolder);
 }
 
-//shows one value in the table, or a dash if it was not found on the page
+//a dash when the page didnt have the value
 function cell($value) {
    return ($value === '' || $value === 0 || $value === null) ? '<span class="muted">&ndash;</span>' : htmlspecialchars((string)$value);
 }
@@ -157,7 +152,6 @@ function cell($value) {
             <code><?php echo SCRAPE_FOLDER; ?></code>. The real web site is never opened.</p>
       </div>
 
-      <?php //what happened after the Import button was clicked ?>
       <?php if (count($report) > 0) { ?>
          <div class="ui positive message">
             <div class="header">Import finished</div>
@@ -170,7 +164,6 @@ function cell($value) {
             <?php echo htmlspecialchars(implode(', ', $scraped['skipped'])); ?></div>
       <?php } ?>
 
-      <?php //one section for each artist, with the artist's facts and a table of their paintings ?>
       <div class="ui segment">
          <?php foreach ($groups as $group) { $artist = $group['artist']; ?>
             <div class="scrape-artist">
@@ -212,7 +205,6 @@ function cell($value) {
          <?php } ?>
       </div>
 
-      <?php //the SQL made from the scraped data, it can be copied, downloaded, or run with the Import button ?>
       <div class="ui segment">
          <h2 class="section-title">SQL insert statements</h2>
          <textarea class="scrape-sql" readonly><?php echo htmlspecialchars($insertSql); ?></textarea>

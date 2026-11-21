@@ -1,13 +1,10 @@
 <?php
-//admin.php is the admin main page (task 10), admins land here after logging in
-//it has links to the admin work, the summary report about each table (task 2)
-//and the user management table where an admin can change a role or delete an account (task 10)
 require 'checkAdmin.php';
 require_once('dbConfig.php');
 require_once('userHelpers.php');
 
-//this runs when a "make admin", "make user" or "delete" button is clicked in the users table
-//an admin cant change or delete their own account here, so there is always at least one admin left
+//runs when make admin, make user or delete is clicked
+//an admin cant change or delete their own account so one admin is always left
 if (isset($_POST['userAction']) && isset($_POST['username'])) {
    $target = $_POST['username'];
    $done = 'none';
@@ -35,17 +32,15 @@ if (isset($_POST['userAction']) && isset($_POST['username'])) {
    exit;
 }
 
-//runs one query that gives back a single number
+//runs a query that returns one number
 function countOf($pdo, $sql) {
    $row = $pdo->query($sql)->fetch();
    return (int)$row[0];
 }
 
-//gets every number and list the report shows
 try {
    $pdo = userDb();
 
-   //how many rows each table has
    $tableCounts = array(
       'Paintings'  => countOf($pdo, 'select count(*) from Paintings'),
       'Artists'    => countOf($pdo, 'select count(*) from Artists'),
@@ -57,7 +52,6 @@ try {
    );
    $adminCount = countOf($pdo, "select count(*) from Users where role='admin'");
 
-   //a few more facts about the collection
    $facts = array(
       'Paintings with no description' => countOf($pdo, "select count(*) from Paintings where Description is null or Description = ''"),
       'Paintings with no gallery'     => countOf($pdo, 'select count(*) from Paintings where GalleryID is null or GalleryID = 0'),
@@ -65,19 +59,16 @@ try {
    );
    $yearRow = $pdo->query('select min(YearOfWork) as oldest, max(YearOfWork) as newest from Paintings where YearOfWork > 0')->fetch();
 
-   //the artists with the most paintings
    $topArtists = $pdo->query('select Artists.ArtistID, Artists.FirstName, Artists.LastName, count(Paintings.PaintingID) as total
                               from Artists join Paintings on Paintings.ArtistID = Artists.ArtistID
                               group by Artists.ArtistID, Artists.FirstName, Artists.LastName
                               order by total desc, Artists.LastName limit 10')->fetchAll();
 
-   //the genres with the most paintings
    $topGenres = $pdo->query('select Genres.GenreID, Genres.GenreName, count(PaintingGenres.PaintingID) as total
                              from Genres join PaintingGenres on PaintingGenres.GenreID = Genres.GenreID
                              group by Genres.GenreID, Genres.GenreName
                              order by total desc, Genres.GenreName limit 10')->fetchAll();
 
-   //every account for the user management table
    $users = $pdo->query('select forename, surname, username, role, email, dateJoined from Users order by role, username')->fetchAll();
    $pdo = null;
 }
@@ -111,7 +102,6 @@ catch (PDOException $e) {
          <div class="ui warning message">You cant change or delete your own account here.</div>
       <?php } ?>
 
-      <?php //the admin work, each one is a hot-spot to another page ?>
       <div class="ui segment">
          <div class="admin-actions">
             <a class="ui primary button" href="addPainting.php">Add artwork</a>
@@ -122,7 +112,6 @@ catch (PDOException $e) {
          </div>
       </div>
 
-      <?php //the summary report (task 2) ?>
       <div class="ui segment">
          <h2 class="section-title">Summary report</h2>
          <div class="ui stackable three column grid">
@@ -175,7 +164,6 @@ catch (PDOException $e) {
          </div>
       </div>
 
-      <?php //user management (task 10) ?>
       <div class="ui segment" id="users">
          <h2 class="section-title">Users</h2>
          <div class="table-scroll">

@@ -1,12 +1,10 @@
 <?php
-//nav.php is the tab bar at the top of every page, each page includes it
-//$page is the name of the page being shown so its tab can be highlighted
-//the tabs change with who is looking (task 10): visitors and users see the gallery tabs,
-//admins also see the add tabs and the admin page
+//$page lights up the matching tab
+//admins also get the add tabs and the admin page
 require_once 'auth.php';
 $page = basename($_SERVER['SCRIPT_NAME']);
 
-//prints one tab, $pages are the pages that light up this tab
+//$pages are the pages that light up this tab
 function navTab($href, $label, $pages, $current) {
    echo '<a class="' . (in_array($current, $pages) ? 'active ' : '') . 'item" href="' . $href . '">' . $label . '</a>';
 }
@@ -18,7 +16,6 @@ function navTab($href, $label, $pages, $current) {
   navTab('galleryPaintings.php', 'Galleries', array('galleryPaintings.php'), $page);
   navTab('genreList.php', 'Genres', array('genreList.php', 'genreDetail.php'), $page);
 
-  //only staff can add things
   if (isAdmin()) {
      navTab('addPainting.php', 'Add Artwork', array('addPainting.php'), $page);
      navTab('addArtist.php', 'Add Artist', array('addArtist.php'), $page);
@@ -26,7 +23,7 @@ function navTab($href, $label, $pages, $current) {
   }
   ?>
 
-  <?php //right side shows who is logged in, or the log in and register tabs for visitors ?>
+  <?php //visitors get log in and register instead ?>
   <div class="right menu">
     <?php if (isLoggedIn()) { ?>
       <span class="item">Logged in as <?php echo htmlspecialchars($_SESSION['username']); ?><?php if (isAdmin()) echo ' (admin)'; ?></span>

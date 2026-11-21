@@ -1,5 +1,4 @@
-/* search.css styles the search box and its suggestion list on the artworks page (task 4)
-   the list looks like the type-in dropdowns in combobox.css so the site feels the same everywhere */
+/*matches the combobox.css list so the site looks the same*/
 
 .search-form {
    display: flex;
@@ -19,7 +18,6 @@
    margin: 0;
 }
 
-/* the box grows to fill the row, the list hangs under it */
 .suggest-box {
    position: relative;
    flex: 1 1 240px;
@@ -83,7 +81,6 @@
    border-left-color: var(--gold);
 }
 
-/* a small picture of the painting next to its title */
 .suggest-list img {
    width: 40px;
    height: 40px;
@@ -124,7 +121,7 @@
    cursor: default;
 }
 
-/* text only screen readers hear, for the labels of the search boxes */
+/*hidden text only screen readers hear*/
 .sr-only {
    position: absolute;
    width: 1px;

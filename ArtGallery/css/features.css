@@ -1,9 +1,7 @@
-/* features.css styles the parts added for the final project tasks, using the colors from theme-salon.css
-   (edit pages, page links, form error messages, the admin page and the phone layout) */
 
-/* ---------- task 5: phone and tablet layout ---------- */
+/*task 5: phone and tablet*/
 
-/* the tab bar wraps onto a second line instead of running off the side of a small screen */
+/*wrap the tab bar instead of running off small screens*/
 .ui.pointing.menu {
    flex-wrap: wrap;
 }
@@ -24,7 +22,7 @@
       letter-spacing: 0.08em;
    }
 
-   /* on a phone the right side starts its own line, centered */
+   /*on a phone the login side gets its own centered line*/
    .ui.pointing.menu .right.menu {
       width: 100%;
       justify-content: center;
@@ -39,21 +37,21 @@
       font-size: 1.9rem;
    }
 
-   /* the detail page picture is not as wide as a phone screen with the thick frame */
+   /*thinner frame so the picture stays big on a phone*/
    .ui.grid > .column > img {
       padding: 8px;
       border-width: 10px;
    }
 
-   /* the user table scrolls sideways instead of squashing */
+   /*scroll sideways instead of squashing*/
    .table-scroll {
       overflow-x: auto;
    }
 }
 
-/* ---------- task 7: form hints and error messages ---------- */
+/*task 7: form hints and errors*/
 
-/* the red message under a box that js/formCheck.js shows */
+/*message added by js/formCheck.js*/
 .ui.form .field-error {
    margin-top: 0.35em;
    color: var(--burgundy);
@@ -77,7 +75,7 @@
    color: var(--burgundy) !important;
 }
 
-/* the small grey example text under a box (some pages dont load combobox.css, which also has this) */
+/*some pages dont load combobox.css, which also has this*/
 .ui.form .field small {
    display: block;
    margin-top: 0.4em;
@@ -112,7 +110,6 @@
    font-family: var(--serif);
 }
 
-/* the id boxes on the edit pages can be read but not changed */
 .ui.form input.readonly {
    background: transparent !important;
    color: var(--muted) !important;
@@ -125,7 +122,7 @@
    font-style: italic;
 }
 
-/* ---------- task 1: edit pages ---------- */
+/*task 1: edit pages*/
 
 .edit-preview {
    text-align: center;
@@ -142,7 +139,6 @@
    box-shadow: 0 12px 22px -8px rgba(60, 35, 15, 0.5);
 }
 
-/* the edit and delete buttons under each painting for admins */
 .ui.cards > .card > .extra.content.admin-buttons {
    display: flex;
 }
@@ -167,12 +163,11 @@
    background: rgba(110, 31, 42, 0.06) !important;
 }
 
-/* buttons that sit next to each other in the heading */
 .ui.secondary.segment > .ui.button {
    margin-top: 0.5rem;
 }
 
-/* ---------- task 2: summary line ---------- */
+/*task 2: summary line*/
 
 .ui.secondary.segment p.summary {
    font-style: italic;
@@ -197,7 +192,7 @@
    margin: 0.25rem 0.15rem;
 }
 
-/* ---------- task 3: page links ---------- */
+/*task 3: page links*/
 
 .page-status {
    text-align: center;
@@ -244,7 +239,7 @@
    color: var(--mat);
 }
 
-/* ---------- task 10: admin page and profile ---------- */
+/*task 10: admin page and profile*/
 
 .admin-actions {
    display: flex;
@@ -313,7 +308,7 @@ h2.section-title:after {
    padding: 0.6em 0.9em;
 }
 
-/* ---------- artist page details ---------- */
+/*artist page details*/
 
 .artist-info {
    margin-bottom: 2rem;
@@ -331,7 +326,7 @@ h2.section-title:after {
    font-style: italic;
 }
 
-/* ---------- task 9: scraper ---------- */
+/*task 9: scraper*/
 
 .scrape-artist {
    margin-bottom: 3rem;

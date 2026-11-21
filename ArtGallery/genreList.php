@@ -1,12 +1,9 @@
 <?php
-//anyone can look at the genres (task 10)
+//public page, auth.php only starts the session
 require_once 'auth.php';
 
 require_once('dbConfig.php'); 
 
-/*
- Displays a list of genres
-*/
 function outputGenres() {
    try {
       $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
@@ -25,9 +22,6 @@ function outputGenres() {
    }
 }
 
-/*
- Displays a single genre
-*/
 function outputSingleGenre($row) {
    echo '<div class="ui fluid card">';
    echo '<div class="ui fluid image">';
@@ -38,14 +32,11 @@ function outputSingleGenre($row) {
    echo '<h4>';
    echo constructGenreLink($row['GenreId'], htmlspecialchars($row['GenreName']));
    echo '</h4>';
-   echo '</div>';  // end class=extra
-   echo '</div>';  // end class=card
+   echo '</div>';  //end class=extra
+   echo '</div>';  //end class=card
 }
 
-/* 
-  Constructs a link given the genre id and a label (which could
-  be a name or even an image tag
-*/
+//the label can be a name or an image tag
 function constructGenreLink($id, $label) {
    $link = '<a href="genreDetail.php?id=' . $id . '">';
    $link .= $label;

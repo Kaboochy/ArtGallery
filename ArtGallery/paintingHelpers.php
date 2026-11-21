@@ -1,22 +1,19 @@
 <?php
-//paintingHelpers.php has the painting functions shared by addPainting.php, editPainting.php and scrape.php
-//the page that includes this must already include dbConfig.php
+//needs dbConfig.php included first
 
-//descriptions in the database have a little html in them (like <em> for titles)
-//this keeps only those simple tags and their text, so a description can never add a script or a link to the page
+//descriptions have a little html (like <em>), this keeps only those simple tags
 function cleanDescription($html) {
    $html = strip_tags((string)$html, '<em><i><strong><b><br><p>');
-   //the kept tags lose any attributes, so <em onclick="..."> becomes <em>
+   //kept tags lose their attributes so <em onclick=...> becomes <em>
    return preg_replace('/<(em|i|strong|b|br|p)\b[^>]*>/i', '<$1>', $html);
 }
 
-//true for a link that starts with http:// or https:// (a blank link is fine too)
+//a blank link is fine too
 function isValidLink($link) {
    return $link == '' || (strlen($link) <= 255 && preg_match('#^https?://\S+$#i', $link));
 }
 
-//checks if another painting already uses this image file name
-//the paintings table only allows each image file name once
+//each image file name can only be used once
 function imageNameTaken($imageName) {
    try {
       $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
@@ -34,7 +31,6 @@ function imageNameTaken($imageName) {
    }
 }
 
-//gets every genre as choices for the genre dropdown
 function genreComboItems() {
    try {
       $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
@@ -52,7 +48,7 @@ function genreComboItems() {
    }
 }
 
-//gets every gallery as choices for the gallery dropdown, the city shows in small grey text
+//the city shows in small grey text
 function galleryComboItems() {
    try {
       $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
@@ -70,8 +66,8 @@ function galleryComboItems() {
    }
 }
 
-//finds the id of the genre or gallery with this exact name (not case sensitive), 0 if there is none
-//$table and $idColumn and $nameColumn come from this file only, never from what the user typed
+//exact name, not case sensitive, 0 if none
+//$table and the column names come from this file only, never from user input
 function findIdByName($table, $idColumn, $nameColumn, $name) {
    try {
       $pdo = new PDO(DBCONNSTRING,DBUSER,DBPASS);
