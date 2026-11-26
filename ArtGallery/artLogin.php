@@ -18,7 +18,6 @@ if (isLoggedIn()) {
 </head>
 <body>
    <main class="ui container">
-      <?php include 'nav.php'; ?>
 
       <div class="ui secondary segment">
          <h1>Art Gallery Login</h1>
